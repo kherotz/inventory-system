@@ -1,1828 +1,1262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Inventory Management System</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Chart.js for data visualization -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(156, 163, 175, 0.4);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(156, 163, 175, 0.7);
-    }
-  </style>
-</head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col md:flex-row transition-colors duration-200">
-
-  <!-- Mobile Top Bar -->
-  <header class="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-30 sticky top-0">
-    <div class="flex items-center gap-2">
-      <div class="bg-indigo-600 text-white p-2 rounded-lg flex items-center justify-center w-8 h-8">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i>
-      </div>
-      <span class="font-bold text-base tracking-tight">Master <span class="text-indigo-600">Inventory</span></span>
-    </div>
-    <div class="flex items-center gap-2">
-      <button id="themeToggleMobile" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-moon dark:hidden"></i>
-        <i class="fa-solid fa-sun hidden dark:inline"></i>
-      </button>
-      <button id="mobileNavToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- Sidebar Navigation -->
-  <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 select-none z-20">
-    <div class="p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-      <div class="flex items-center gap-3">
-        <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md shadow-indigo-500/20 flex items-center justify-center w-10 h-10">
-          <i class="fa-solid fa-boxes-stacked text-lg"></i>
-        </div>
-        <div>
-          <h1 class="font-bold text-lg tracking-tight leading-tight">Master <span class="text-indigo-600">Inventory</span></h1>
-          <p class="text-[11px] text-slate-400 font-medium">Enterprise Management</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nav Items -->
-    <nav class="p-4 space-y-1.5 flex-1">
-      <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
-        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-        <span>Dashboard</span>
-      </button>
-      <button onclick="switchView('inventory')" id="nav-inventory" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60">
-        <i class="fa-solid fa-box-archive w-5 text-center"></i>
-        <span>Inventory Items</span>
-        <span id="navItemCount" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold">0</span>
-      </button>
-      <button onclick="switchView('activity')" id="nav-activity" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60">
-        <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
-        <span>Stock Activity Log</span>
-      </button>
-    </nav>
-
-    <!-- Quick Actions & Theme in Footer -->
-    <div class="p-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-      <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
-        <span>MODE</span>
-        <button id="themeToggle" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-          <i class="fa-solid fa-moon dark:hidden"></i>
-          <i class="fa-solid fa-sun hidden dark:inline"></i>
-          <span class="text-xs">Theme</span>
-        </button>
-      </div>
-
-      <div class="bg-indigo-50/70 dark:bg-indigo-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/40">
-        <div class="flex items-center gap-2 mb-1">
-          <i class="fa-solid fa-cloud-arrow-down text-indigo-600 dark:text-indigo-400 text-xs"></i>
-          <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Quick Backup</span>
-        </div>
-        <p class="text-[11px] text-slate-500 mb-2">Save database snapshot as JSON.</p>
-        <div class="flex gap-1.5">
-          <button onclick="exportData('json')" class="w-full text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 rounded-lg transition shadow-sm">
-            Export JSON
-          </button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Mobile Drawer Overlay -->
-  <div id="mobileDrawer" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleMobileNav(false)">
-    <div class="w-64 bg-white dark:bg-slate-900 h-full p-4 flex flex-col" onclick="event.stopPropagation()">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-boxes-stacked text-indigo-600"></i>
-          <span class="font-bold">Master Inventory</span>
-        </div>
-        <button onclick="toggleMobileNav(false)" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="space-y-2 mt-4">
-        <button onclick="switchView('dashboard'); toggleMobileNav(false);" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-chart-pie text-indigo-600"></i> Dashboard
-        </button>
-        <button onclick="switchView('inventory'); toggleMobileNav(false);" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-box-archive text-indigo-600"></i> Inventory Items
-        </button>
-        <button onclick="switchView('activity'); toggleMobileNav(false);" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i> Stock Activity Log
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Wrapper -->
-  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
-    
-    <!-- Top Global Header / Search & Action bar -->
-    <div class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-10 px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h2 id="viewTitle" class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h2>
-        <p id="viewSubtitle" class="text-xs text-slate-500">Master Inventory real-time valuation, alerts, and operational analytics</p>
-      </div>
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <button onclick="openProductModal()" class="inline-flex items-center gap-2 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-indigo-500/20 transition active:scale-95">
-          <i class="fa-solid fa-circle-plus"></i>
-          <span>Add Product</span>
-        </button>
-        <button onclick="openStockAdjustModal()" class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl transition">
-          <i class="fa-solid fa-right-left text-indigo-500"></i>
-          <span>Stock In / Out</span>
-        </button>
-        <div class="relative inline-block text-left" id="moreActionsDropdown">
-          <button onclick="toggleDropdown('toolsMenu')" class="p-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 w-9 h-9 flex items-center justify-center">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-          </button>
-          <div id="toolsMenu" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-sm">
-            <div class="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Data Exchange</div>
-            <button onclick="exportData('csv')" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2.5">
-              <i class="fa-solid fa-file-csv text-emerald-500"></i> Export to CSV
-            </button>
-            <button onclick="exportData('json')" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2.5">
-              <i class="fa-solid fa-file-code text-indigo-500"></i> Export to JSON
-            </button>
-            <label class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer">
-              <i class="fa-solid fa-file-arrow-up text-amber-500"></i> Import Data
-              <input type="file" id="importInput" accept=".csv, .json" class="hidden" onchange="handleFileImport(event)">
-            </label>
-            <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
-            <button onclick="loadSampleDataset()" class="w-full text-left px-4 py-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center gap-2.5 font-medium">
-              <i class="fa-solid fa-rotate text-xs"></i> Load Demo Data
-            </button>
-            <button onclick="confirmReset()" class="w-full text-left px-4 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 flex items-center gap-2.5">
-              <i class="fa-solid fa-trash-can text-xs"></i> Clear All Data
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Notification Banner Container -->
-    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
-
-    <!-- View: Dashboard -->
-    <section id="view-dashboard" class="p-4 md:p-8 space-y-6">
-      <!-- Metric Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-        <!-- Card 1 -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total Products</p>
-            <h3 id="statTotalItems" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">0</h3>
-            <p id="statTotalStockCount" class="text-xs text-slate-400 mt-0.5">0 units in warehouse</p>
-          </div>
-          <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center">
-            <i class="fa-solid fa-boxes-stacked text-lg"></i>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total Asset Value</p>
-            <h3 id="statTotalValue" class="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">$0.00</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Cumulative retail/cost value</p>
-          </div>
-          <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center">
-            <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-amber-600 dark:text-amber-400 font-semibold">Low Stock Warnings</p>
-            <h3 id="statLowStock" class="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">0</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Below threshold limit</p>
-          </div>
-          <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center">
-            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
-          </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-rose-600 dark:text-rose-400 font-semibold">Out of Stock</p>
-            <h3 id="statOutOfStock" class="text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400">0</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Zero inventory units</p>
-          </div>
-          <div class="w-12 h-12 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center">
-            <i class="fa-solid fa-ban text-lg"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Charts Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Stock Distribution Chart -->
-        <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h4 class="font-semibold text-slate-800 dark:text-slate-100">Inventory Value by Category</h4>
-              <p class="text-xs text-slate-400">Total capital allocated per category</p>
-            </div>
-            <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-slate-500 font-medium">Auto-computed</span>
-          </div>
-          <div class="h-64 relative">
-            <canvas id="categoryBarChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Stock Status Doughnut -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-          <div>
-            <h4 class="font-semibold text-slate-800 dark:text-slate-100 mb-1">Health Breakdown</h4>
-            <p class="text-xs text-slate-400 mb-4">Stock health distribution</p>
-            <div class="h-52 relative flex items-center justify-center">
-              <canvas id="statusDoughnutChart"></canvas>
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-            <div>
-              <span class="block w-2.5 h-2.5 rounded-full bg-emerald-500 mx-auto mb-1"></span>
-              <span class="text-slate-500">In Stock</span>
-              <span id="labelInStockCount" class="block font-bold">0</span>
-            </div>
-            <div>
-              <span class="block w-2.5 h-2.5 rounded-full bg-amber-500 mx-auto mb-1"></span>
-              <span class="text-slate-500">Low Stock</span>
-              <span id="labelLowStockCount" class="block font-bold">0</span>
-            </div>
-            <div>
-              <span class="block w-2.5 h-2.5 rounded-full bg-rose-500 mx-auto mb-1"></span>
-              <span class="text-slate-500">Out</span>
-              <span id="labelOutCount" class="block font-bold">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Action Alert Banner -->
-      <div id="urgentAlertBox" class="hidden bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 p-4 rounded-2xl">
-        <div class="flex items-start gap-3">
-          <div class="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-xl text-amber-700 dark:text-amber-300">
-            <i class="fa-solid fa-bell"></i>
-          </div>
-          <div class="flex-1">
-            <h5 class="font-semibold text-amber-900 dark:text-amber-200 text-sm">Critical Attention Required</h5>
-            <p id="urgentAlertText" class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">Several products have dipped below their safety threshold.</p>
-          </div>
-          <button onclick="filterByHealth('low'); switchView('inventory')" class="text-xs px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition shrink-0">
-            Review Shortages
-          </button>
-        </div>
-      </div>
-
-      <!-- Recent Log Snippet -->
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="font-semibold text-slate-800 dark:text-slate-100">Recent Inventory Actions</h4>
-          <button onclick="switchView('activity')" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">View All Activities &rarr;</button>
-        </div>
-        <div id="dashboardRecentActivity" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- View: Inventory Items -->
-    <section id="view-inventory" class="p-4 md:p-8 space-y-4 hidden">
-      <!-- Filter and Search Toolbar -->
-      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-        <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-          <!-- Search Input -->
-          <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
-            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search by SKU, Product Name, Category or Supplier..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
-          
-          <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Category Filter -->
-            <select id="filterCategory" onchange="applyFilters()" class="text-xs md:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="ALL">All Categories</option>
-            </select>
-
-            <!-- Stock Status Filter -->
-            <select id="filterStatus" onchange="applyFilters()" class="text-xs md:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="ALL">All Stock Levels</option>
-              <option value="IN_STOCK">In Stock</option>
-              <option value="LOW_STOCK">Low Stock Alert</option>
-              <option value="OUT_OF_STOCK">Out of Stock</option>
-            </select>
-
-            <!-- Reset Filters -->
-            <button onclick="resetFilters()" class="px-3 py-2 text-xs md:text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-xl transition">
-              Reset
-            </button>
-          </div>
-        </div>
-
-        <!-- Meta Counters -->
-        <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500">
-          <span>Showing <strong id="filterMatchesCount" class="text-slate-800 dark:text-slate-200">0</strong> matching products</span>
-          <span class="hidden sm:inline">Click table headers to sort</span>
-        </div>
-      </div>
-
-      <!-- Inventory Table -->
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr class="bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">
-                <th class="py-3 px-4 cursor-pointer hover:text-indigo-600" onclick="sortBy('sku')">
-                  <div class="flex items-center gap-1.5">
-                    <span>SKU</span>
-                    <i class="fa-solid fa-sort text-xs"></i>
-                  </div>
-                </th>
-                <th class="py-3 px-4 cursor-pointer hover:text-indigo-600" onclick="sortBy('name')">
-                  <div class="flex items-center gap-1.5">
-                    <span>Product Name</span>
-                    <i class="fa-solid fa-sort text-xs"></i>
-                  </div>
-                </th>
-                <th class="py-3 px-4 cursor-pointer hover:text-indigo-600" onclick="sortBy('category')">
-                  <div class="flex items-center gap-1.5">
-                    <span>Category</span>
-                    <i class="fa-solid fa-sort text-xs"></i>
-                  </div>
-                </th>
-                <th class="py-3 px-4 cursor-pointer hover:text-indigo-600" onclick="sortBy('quantity')">
-                  <div class="flex items-center gap-1.5">
-                    <span>In Stock</span>
-                    <i class="fa-solid fa-sort text-xs"></i>
-                  </div>
-                </th>
-                <th class="py-3 px-4 cursor-pointer hover:text-indigo-600" onclick="sortBy('price')">
-                  <div class="flex items-center gap-1.5">
-                    <span>Price</span>
-                    <i class="fa-solid fa-sort text-xs"></i>
-                  </div>
-                </th>
-                <th class="py-3 px-4">Threshold</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4 text-center">Quick Adjust</th>
-                <th class="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Empty State -->
-        <div id="tableEmptyState" class="hidden p-12 text-center">
-          <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400">
-            <i class="fa-solid fa-box-open text-2xl"></i>
-          </div>
-          <h4 class="font-semibold text-slate-700 dark:text-slate-300">No products found</h4>
-          <p class="text-xs text-slate-400 mt-1">Try adjusting your filters or search keywords, or add a new item.</p>
-          <button onclick="openProductModal()" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-xl shadow">
-            Create First Product
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- View: Stock Activity Logs -->
-    <section id="view-activity" class="p-4 md:p-8 space-y-4 hidden">
-      <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h3 class="font-bold text-slate-900 dark:text-white text-base">Warehouse Audit Log</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Automated timestamped trail of inbound, outbound, and inventory revisions.</p>
-        </div>
-        <button onclick="clearActivityLogs()" class="px-3.5 py-1.5 border border-rose-200 dark:border-rose-900/50 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-xl transition">
-          Clear Audit Trail
-        </button>
-      </div>
-
-      <!-- Log Table -->
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr class="bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                <th class="py-3 px-4">Date & Time</th>
-                <th class="py-3 px-4">Type</th>
-                <th class="py-3 px-4">Product / SKU</th>
-                <th class="py-3 px-4">Change</th>
-                <th class="py-3 px-4">Resulting Stock</th>
-                <th class="py-3 px-4">Reason / Notes</th>
-              </tr>
-            </thead>
-            <tbody id="activityLogTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/80">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
-        </div>
-        <div id="logsEmptyState" class="hidden p-8 text-center text-slate-400 text-xs">
-          No recorded stock adjustments or product events yet.
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal: Add / Edit Product -->
-  <div id="productModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-scale-in">
-      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-        <div>
-          <h3 id="productModalTitle" class="font-bold text-lg text-slate-900 dark:text-white">Add New Product</h3>
-          <p class="text-xs text-slate-400">Fill in the product profile details below.</p>
-        </div>
-        <button onclick="closeProductModal()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form id="productForm" onsubmit="handleProductSubmit(event)" class="p-6 space-y-4">
-        <input type="hidden" id="editProductId" value="">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- SKU -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">SKU Code *</label>
-            <div class="relative">
-              <input type="text" id="prodSku" required placeholder="e.g. ELEC-009" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none uppercase font-mono">
-              <button type="button" onclick="generateRandomSku()" title="Generate Random SKU" class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-indigo-600 hover:underline">Auto</button>
-            </div>
-          </div>
-
-          <!-- Category -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category *</label>
-            <input type="text" id="prodCategory" required placeholder="e.g. Electronics, Furniture" list="categorySuggestions" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            <datalist id="categorySuggestions">
-              <option value="Electronics">
-              <option value="Apparel">
-              <option value="Office Supplies">
-              <option value="Furniture">
-              <option value="Kitchenware">
-            </datalist>
-          </div>
-        </div>
-
-        <!-- Name -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Product Name *</label>
-          <input type="text" id="prodName" required placeholder="e.g. Wireless Ergonomic Mouse" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-        </div>
-
-        <!-- Quantities & Threshold -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Current Stock *</label>
-            <input type="number" id="prodQuantity" min="0" required placeholder="0" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Min. Threshold *</label>
-            <input type="number" id="prodThreshold" min="0" required placeholder="5" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Unit Price ($) *</label>
-            <input type="number" id="prodPrice" step="0.01" min="0" required placeholder="19.99" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          </div>
-        </div>
-
-        <!-- Supplier & Location -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Supplier / Vendor</label>
-            <input type="text" id="prodSupplier" placeholder="e.g. Apex Global Supplies" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Warehouse Location</label>
-            <input type="text" id="prodLocation" placeholder="e.g. Aisle 4, Bay B" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2.5">
-          <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/20">
-            Save Product
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Stock In / Out Adjustment -->
-  <div id="stockAdjustModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-        <div>
-          <h3 class="font-bold text-lg text-slate-900 dark:text-white">Record Stock Transaction</h3>
-          <p class="text-xs text-slate-400">Receive restock or dispatch outgoing units.</p>
-        </div>
-        <button onclick="closeStockAdjustModal()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form id="stockAdjustForm" onsubmit="handleStockAdjustSubmit(event)" class="p-6 space-y-4">
-        <!-- Target Product Select -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Product *</label>
-          <select id="adjustProductId" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" onchange="updateAdjustHelperText()">
-            <!-- Populated via JS -->
-          </select>
-          <p id="adjustCurrentStockHelp" class="text-[11px] text-slate-400 mt-1">Current Stock: --</p>
-        </div>
-
-        <!-- Transaction Type -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Transaction Type *</label>
-          <div class="grid grid-cols-2 gap-2">
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-950/40">
-              <input type="radio" name="adjustType" value="IN" checked class="text-indigo-600">
-              <div>
-                <span class="block text-xs font-semibold text-emerald-600 dark:text-emerald-400">Stock IN (+)</span>
-                <span class="block text-[10px] text-slate-400">Receive purchase</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-950/40">
-              <input type="radio" name="adjustType" value="OUT" class="text-indigo-600">
-              <div>
-                <span class="block text-xs font-semibold text-rose-600 dark:text-rose-400">Stock OUT (-)</span>
-                <span class="block text-[10px] text-slate-400">Sale or removal</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Quantity -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Quantity *</label>
-          <input type="number" id="adjustQuantity" min="1" required placeholder="10" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-        </div>
-
-        <!-- Reason / Note -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Reason / Note</label>
-          <input type="text" id="adjustNotes" placeholder="e.g. PO #8942 received, damaged item, etc." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2.5">
-          <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/20">
-            Apply Adjustment
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Confirmation Prompt -->
-  <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm shadow-xl p-5 text-center">
-      <div id="confirmIconBox" class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-        <i class="fa-solid fa-circle-exclamation text-xl"></i>
-      </div>
-      <h4 id="confirmTitle" class="font-bold text-slate-900 dark:text-white text-base">Confirm Action</h4>
-      <p id="confirmMessage" class="text-xs text-slate-500 mt-1 mb-5">Are you sure you want to proceed?</p>
-      <div class="flex justify-center gap-2.5">
-        <button id="confirmCancelBtn" class="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800">
-          Cancel
-        </button>
-        <button id="confirmActionBtn" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow">
-          Yes, Delete
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPLICATION LOGIC -->
-  <script>
-    /* =====================================================================
-       1. DATA STRUCTURES & LOCAL STORAGE INITIALIZATION
-       ===================================================================== */
-    const STORAGE_KEY_PRODUCTS = 'master_inventory_products_v1';
-    const STORAGE_KEY_LOGS = 'master_inventory_logs_v1';
-    const STORAGE_KEY_THEME = 'master_inventory_theme';
-
-    let products = [];
-    let activityLogs = [];
-    let currentSort = { column: 'name', direction: 'asc' };
-    let categoryChartInstance = null;
-    let statusChartInstance = null;
-
-    // Standard sample dataset
-    const INITIAL_SAMPLE_PRODUCTS = [
-      {
-        id: "prod-101",
-        sku: "TECH-5001",
-        name: "Ergonomic Mechanical Keyboard",
-        category: "Electronics",
-        quantity: 42,
-        threshold: 10,
-        price: 89.99,
-        supplier: "KeyLogix Corp",
-        location: "Warehouse A - Rack 2",
-        createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
-      },
-      {
-        id: "prod-102",
-        sku: "TECH-5002",
-        name: "Precision Gaming Mouse",
-        category: "Electronics",
-        quantity: 8,
-        threshold: 15,
-        price: 49.50,
-        supplier: "KeyLogix Corp",
-        location: "Warehouse A - Rack 2",
-        createdAt: new Date(Date.now() - 86400000 * 6).toISOString()
-      },
-      {
-        id: "prod-103",
-        sku: "FURN-2020",
-        name: "Mesh Executive Desk Chair",
-        category: "Furniture",
-        quantity: 0,
-        threshold: 5,
-        price: 249.00,
-        supplier: "Nordic Comfort Ltd",
-        location: "Warehouse B - Bay 1",
-        createdAt: new Date(Date.now() - 86400000 * 5).toISOString()
-      },
-      {
-        id: "prod-104",
-        sku: "FURN-2021",
-        name: "Dual Motor Standing Desk Frame",
-        category: "Furniture",
-        quantity: 14,
-        threshold: 6,
-        price: 380.00,
-        supplier: "Nordic Comfort Ltd",
-        location: "Warehouse B - Bay 3",
-        createdAt: new Date(Date.now() - 86400000 * 4).toISOString()
-      },
-      {
-        id: "prod-105",
-        sku: "OFF-3310",
-        name: "Recycled Heavyweight Paper Ream (500 sheets)",
-        category: "Office Supplies",
-        quantity: 110,
-        threshold: 20,
-        price: 7.25,
-        supplier: "EcoPrint Materials",
-        location: "Warehouse C - Shelf 1",
-        createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
-      },
-      {
-        id: "prod-106",
-        sku: "TECH-8099",
-        name: "USB-C Multiport Docking Hub 4K",
-        category: "Electronics",
-        quantity: 4,
-        threshold: 8,
-        price: 64.90,
-        supplier: "Apex Global Supplies",
-        location: "Warehouse A - Rack 4",
-        createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
-      },
-      {
-        id: "prod-107",
-        sku: "APP-9011",
-        name: "Insulated Thermal Hoodie (Navy)",
-        category: "Apparel",
-        quantity: 26,
-        threshold: 12,
-        price: 45.00,
-        supplier: "Atlas Apparel Co",
-        location: "Warehouse C - Shelf 9",
-        createdAt: new Date(Date.now() - 86400000).toISOString()
-      }
-    ];
-
-    const INITIAL_SAMPLE_LOGS = [
-      {
-        id: "log-1",
-        productId: "prod-101",
-        sku: "TECH-5001",
-        productName: "Ergonomic Mechanical Keyboard",
-        type: "IN",
-        change: 20,
-        newStock: 42,
-        reason: "Supplier shipment PO #4102",
-        timestamp: new Date(Date.now() - 3600000 * 5).toISOString()
-      },
-      {
-        id: "log-2",
-        productId: "prod-103",
-        sku: "FURN-2020",
-        productName: "Mesh Executive Desk Chair",
-        type: "OUT",
-        change: -3,
-        newStock: 0,
-        reason: "Customer fulfillments",
-        timestamp: new Date(Date.now() - 3600000 * 12).toISOString()
-      }
-    ];
-
-    /* =====================================================================
-       2. INITIAL LOAD & STORAGE PERSISTENCE
-       ===================================================================== */
-    function loadData() {
-      try {
-        const storedProds = localStorage.getItem(STORAGE_KEY_PRODUCTS);
-        const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-
-        if (storedProds) {
-          products = JSON.parse(storedProds);
-        } else {
-          products = [...INITIAL_SAMPLE_PRODUCTS];
-          saveProducts();
-        }
-
-        if (storedLogs) {
-          activityLogs = JSON.parse(storedLogs);
-        } else {
-          activityLogs = [...INITIAL_SAMPLE_LOGS];
-          saveLogs();
-        }
-      } catch (err) {
-        console.error("Storage load error:", err);
-        products = [...INITIAL_SAMPLE_PRODUCTS];
-        activityLogs = [...INITIAL_SAMPLE_LOGS];
-      }
-    }
-
-    function saveProducts() {
-      localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
-    }
-
-    function saveLogs() {
-      localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(activityLogs));
-    }
-
-    function recordLog(productId, productName, sku, type, change, newStock, reason) {
-      const logEntry = {
-        id: "log-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
-        productId,
-        productName,
-        sku,
-        type,
-        change,
-        newStock,
-        reason: reason || "Manual stock modification",
-        timestamp: new Date().toISOString()
-      };
-      activityLogs.unshift(logEntry);
-      if (activityLogs.length > 200) activityLogs.pop();
-      saveLogs();
-      renderActivityLogs();
-      renderRecentDashboardLogs();
-    }
-
-    /* =====================================================================
-       3. NAVIGATION & UI VIEWS
-       ===================================================================== */
-    function switchView(viewName) {
-      const views = ['dashboard', 'inventory', 'activity'];
-      views.forEach(v => {
-        const section = document.getElementById(`view-${v}`);
-        const navBtn = document.getElementById(`nav-${v}`);
-        if (section) section.classList.add('hidden');
-        if (navBtn) {
-          navBtn.classList.remove('bg-indigo-50', 'dark:bg-indigo-950/50', 'text-indigo-600', 'dark:text-indigo-400');
-          navBtn.classList.add('text-slate-600', 'dark:text-slate-400');
-        }
-      });
-
-      const activeSection = document.getElementById(`view-${viewName}`);
-      const activeNav = document.getElementById(`nav-${viewName}`);
-      if (activeSection) activeSection.classList.remove('hidden');
-      if (activeNav) {
-        activeNav.classList.add('bg-indigo-50', 'dark:bg-indigo-950/50', 'text-indigo-600', 'dark:text-indigo-400');
-        activeNav.classList.remove('text-slate-600', 'dark:text-slate-400');
-      }
-
-      const title = document.getElementById('viewTitle');
-      const subtitle = document.getElementById('viewSubtitle');
-      if (viewName === 'dashboard') {
-        title.innerText = "Dashboard Overview";
-        subtitle.innerText = "Master Inventory real-time valuation, alerts, and operational analytics";
-        renderCharts();
-      } else if (viewName === 'inventory') {
-        title.innerText = "Inventory Directory";
-        subtitle.innerText = "Manage master catalogs, stock levels, suppliers, and unit prices";
-      } else if (viewName === 'activity') {
-        title.innerText = "Activity & Audit Log";
-        subtitle.innerText = "Historical log of all stock adjustments, additions, and updates";
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function toggleMobileNav(forceState) {
-      const drawer = document.getElementById('mobileDrawer');
-      if (typeof forceState === 'boolean') {
-        if (forceState) drawer.classList.remove('hidden');
-        else drawer.classList.add('hidden');
-      } else {
-        drawer.classList.toggle('hidden');
-      }
-    }
-
-    document.getElementById('mobileNavToggle')?.addEventListener('click', () => toggleMobileNav(true));
-
-    /* Theme toggle logic */
-    function initTheme() {
-      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem(STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
-      renderCharts();
-    }
-
-    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
-    document.getElementById('themeToggleMobile')?.addEventListener('click', toggleTheme);
-
-    window.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('toolsMenu');
-      const container = document.getElementById('moreActionsDropdown');
-      if (container && !container.contains(e.target)) {
-        dropdown.classList.add('hidden');
-      }
-    });
-
-    function toggleDropdown(id) {
-      const menu = document.getElementById(id);
-      menu.classList.toggle('hidden');
-    }
-
-    /* =====================================================================
-       4. CALCULATIONS & DASHBOARD STATS
-       ===================================================================== */
-    function getStockStatus(qty, threshold) {
-      if (qty <= 0) return { label: 'Out of Stock', code: 'OUT_OF_STOCK', color: 'rose' };
-      if (qty <= threshold) return { label: 'Low Stock', code: 'LOW_STOCK', color: 'amber' };
-      return { label: 'In Stock', code: 'IN_STOCK', color: 'emerald' };
-    }
-
-    function updateDashboardMetrics() {
-      const totalItems = products.length;
-      let totalStockUnits = 0;
-      let totalValuation = 0;
-      let lowStockCount = 0;
-      let outOfStockCount = 0;
-
-      products.forEach(p => {
-        const qty = Number(p.quantity) || 0;
-        const price = Number(p.price) || 0;
-        const thresh = Number(p.threshold) || 0;
-
-        totalStockUnits += qty;
-        totalValuation += qty * price;
-
-        if (qty <= 0) {
-          outOfStockCount++;
-        } else if (qty <= thresh) {
-          lowStockCount++;
-        }
-      });
-
-      const inStockCount = totalItems - lowStockCount - outOfStockCount;
-
-      document.getElementById('statTotalItems').innerText = totalItems;
-      document.getElementById('statTotalStockCount').innerText = `${totalStockUnits.toLocaleString()} total units`;
-      document.getElementById('statTotalValue').innerText = `$${totalValuation.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      document.getElementById('statLowStock').innerText = lowStockCount;
-      document.getElementById('statOutOfStock').innerText = outOfStockCount;
-
-      document.getElementById('navItemCount').innerText = totalItems;
-
-      document.getElementById('labelInStockCount').innerText = inStockCount;
-      document.getElementById('labelLowStockCount').innerText = lowStockCount;
-      document.getElementById('labelOutCount').innerText = outOfStockCount;
-
-      const alertBox = document.getElementById('urgentAlertBox');
-      const alertText = document.getElementById('urgentAlertText');
-      if (lowStockCount > 0 || outOfStockCount > 0) {
-        alertBox.classList.remove('hidden');
-        alertText.innerText = `Attention: ${outOfStockCount} item(s) are completely out of stock, and ${lowStockCount} item(s) are at or below minimum safety threshold!`;
-      } else {
-        alertBox.classList.add('hidden');
-      }
-
-      renderCharts();
-      renderRecentDashboardLogs();
-    }
-
-    /* =====================================================================
-       5. CHARTS RENDERING (CHART.JS)
-       ===================================================================== */
-    function renderCharts() {
-      const isDark = document.documentElement.classList.contains('dark');
-      const textColor = isDark ? '#94a3b8' : '#64748b';
-      const gridColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
-
-      const catValuationMap = {};
-      products.forEach(p => {
-        const cat = p.category || 'Unassigned';
-        const val = (Number(p.quantity) || 0) * (Number(p.price) || 0);
-        catValuationMap[cat] = (catValuationMap[cat] || 0) + val;
-      });
-
-      const catLabels = Object.keys(catValuationMap);
-      const catData = Object.values(catValuationMap);
-
-      const ctxBar = document.getElementById('categoryBarChart');
-      if (ctxBar) {
-        if (categoryChartInstance) categoryChartInstance.destroy();
-        categoryChartInstance = new Chart(ctxBar, {
-          type: 'bar',
-          data: {
-            labels: catLabels.length ? catLabels : ['None'],
-            datasets: [{
-              label: 'Total Value ($)',
-              data: catData.length ? catData : [0],
-              backgroundColor: '#6366f1',
-              borderRadius: 8,
-              borderSkipped: false,
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: (ctx) => `Value: $${ctx.raw.toLocaleString(undefined, {minimumFractionDigits: 2})}`
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Inventory Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
                 }
-              }
-            },
-            scales: {
-              x: {
-                ticks: { color: textColor },
-                grid: { display: false }
-              },
-              y: {
-                ticks: {
-                  color: textColor,
-                  callback: (val) => '$' + val
-                },
-                grid: { color: gridColor }
-              }
             }
-          }
-        });
-      }
+        }
+    </script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
 
-      let inCount = 0, lowCount = 0, outCount = 0;
-      products.forEach(p => {
-        const q = Number(p.quantity) || 0;
-        const t = Number(p.threshold) || 0;
-        if (q <= 0) outCount++;
-        else if (q <= t) lowCount++;
-        else inCount++;
-      });
+    <!-- ==================== AUTH / LOGIN SCREEN ==================== -->
+    <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white text-center">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm border border-white/20 shadow-inner">
+                    <i class="fa-solid fa-boxes-stacked text-3xl text-blue-200"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">Master Inventory</h1>
+                <p class="text-blue-100 text-xs mt-1">Enterprise Asset & Catalog Control</p>
+            </div>
 
-      const ctxDoughnut = document.getElementById('statusDoughnutChart');
-      if (ctxDoughnut) {
-        if (statusChartInstance) statusChartInstance.destroy();
-        statusChartInstance = new Chart(ctxDoughnut, {
-          type: 'doughnut',
-          data: {
-            labels: ['In Stock', 'Low Stock', 'Out of Stock'],
-            datasets: [{
-              data: products.length ? [inCount, lowCount, outCount] : [1, 0, 0],
-              backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
-              borderWidth: 0,
-              hoverOffset: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '72%',
-            plugins: {
-              legend: { display: false }
-            }
-          }
-        });
-      }
-    }
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
+                <div id="loginError" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="loginErrorMsg">Invalid email or password</span>
+                </div>
 
-    /* =====================================================================
-       6. INVENTORY TABLE RENDERING & FILTERING
-       ===================================================================== */
-    function populateCategoryFilterDropdown() {
-      const select = document.getElementById('filterCategory');
-      const currentSelected = select.value;
-      const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean))).sort();
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="email" id="loginEmail" required value="admin@masterinv.com"
+                            class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
+                            placeholder="admin@masterinv.com">
+                    </div>
+                </div>
 
-      select.innerHTML = '<option value="ALL">All Categories</option>';
-      categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        select.appendChild(opt);
-      });
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="password" id="loginPassword" required value="admin123"
+                            class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
+                            placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
 
-      if (categories.includes(currentSelected)) {
-        select.value = currentSelected;
-      }
-    }
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+                        <input type="checkbox" id="rememberMe" checked class="rounded text-blue-600 focus:ring-blue-500">
+                        <span>Remember session</span>
+                    </label>
+                    <span class="text-blue-600 hover:underline cursor-pointer">Security Policy</span>
+                </div>
 
-    function renderInventoryTable() {
-      const tbody = document.getElementById('inventoryTableBody');
-      const emptyState = document.getElementById('tableEmptyState');
-      tbody.innerHTML = '';
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    Sign In to Portal
+                </button>
 
-      const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-      const selectedCat = document.getElementById('filterCategory').value;
-      const selectedStatus = document.getElementById('filterStatus').value;
+                <!-- Demo Quick Logins -->
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 text-center mb-2.5">Demo Quick Access</p>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button type="button" onclick="quickFillCredentials('admin@masterinv.com', 'admin123')"
+                            class="p-2 border border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50/50 text-left transition">
+                            <div class="font-semibold text-slate-800 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Admin Role
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-0.5">admin123</div>
+                        </button>
+                        <button type="button" onclick="quickFillCredentials('staff@masterinv.com', 'staff123')"
+                            class="p-2 border border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50/50 text-left transition">
+                            <div class="font-semibold text-slate-800 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Staff Role
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-0.5">staff123</div>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-      let filtered = products.filter(item => {
-        const matchesQuery = 
-          (item.name || '').toLowerCase().includes(query) ||
-          (item.sku || '').toLowerCase().includes(query) ||
-          (item.category || '').toLowerCase().includes(query) ||
-          (item.supplier || '').toLowerCase().includes(query);
-
-        const matchesCat = (selectedCat === 'ALL') || (item.category === selectedCat);
+    <!-- ==================== MAIN DASHBOARD LAYOUT ==================== -->
+    <div id="mainApp" class="flex min-h-screen">
         
-        const health = getStockStatus(item.quantity, item.threshold);
-        const matchesStatus = (selectedStatus === 'ALL') || (health.code === selectedStatus);
-
-        return matchesQuery && matchesCat && matchesStatus;
-      });
-
-      filtered.sort((a, b) => {
-        let valA = a[currentSort.column];
-        let valB = b[currentSort.column];
-
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
-
-        if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
-
-      document.getElementById('filterMatchesCount').innerText = filtered.length;
-
-      if (filtered.length === 0) {
-        emptyState.classList.remove('hidden');
-        return;
-      } else {
-        emptyState.classList.add('hidden');
-      }
-
-      filtered.forEach(p => {
-        const status = getStockStatus(p.quantity, p.threshold);
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-800/70';
-
-        let badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800';
-        if (status.code === 'LOW_STOCK') {
-          badgeBg = 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800';
-        } else if (status.code === 'OUT_OF_STOCK') {
-          badgeBg = 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800';
-        }
-
-        row.innerHTML = `
-          <td class="py-3 px-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">${p.sku}</td>
-          <td class="py-3 px-4">
-            <div class="font-medium text-slate-900 dark:text-slate-100">${escapeHtml(p.name)}</div>
-            <div class="text-[11px] text-slate-400">${escapeHtml(p.supplier || 'No supplier listed')} &bull; ${escapeHtml(p.location || 'Default Hub')}</div>
-          </td>
-          <td class="py-3 px-4">
-            <span class="inline-block px-2.5 py-0.5 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">${escapeHtml(p.category || 'General')}</span>
-          </td>
-          <td class="py-3 px-4 font-bold text-slate-900 dark:text-white text-base">${p.quantity}</td>
-          <td class="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">$${Number(p.price).toFixed(2)}</td>
-          <td class="py-3 px-4 text-xs text-slate-400">${p.threshold} units</td>
-          <td class="py-3 px-4">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeBg}">
-              <span class="w-1.5 h-1.5 rounded-full ${status.code === 'IN_STOCK' ? 'bg-emerald-500' : status.code === 'LOW_STOCK' ? 'bg-amber-500' : 'bg-rose-500'}"></span>
-              ${status.label}
-            </span>
-          </td>
-          <td class="py-3 px-4">
-            <div class="flex items-center justify-center gap-1">
-              <button onclick="quickStockChange('${p.id}', -1)" title="Decrement 1" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-rose-100 dark:bg-slate-800 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 flex items-center justify-center transition font-bold text-slate-600 dark:text-slate-300">
-                <i class="fa-solid fa-minus text-[10px]"></i>
-              </button>
-              <button onclick="quickStockChange('${p.id}', 1)" title="Increment 1" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center justify-center transition font-bold text-slate-600 dark:text-slate-300">
-                <i class="fa-solid fa-plus text-[10px]"></i>
-              </button>
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 hidden md:flex">
+            <!-- App Brand -->
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-white text-sm leading-tight">Master Inventory</h2>
+                    <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Enterprise Hub</span>
+                </div>
             </div>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <div class="flex items-center justify-end gap-1">
-              <button onclick="openStockAdjustModal('${p.id}')" title="Stock Transfer / In-Out" class="p-1.5 rounded-lg text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-950/40 dark:hover:text-indigo-400 transition w-7 h-7 flex items-center justify-center">
-                <i class="fa-solid fa-right-left text-xs"></i>
-              </button>
-              <button onclick="duplicateProduct('${p.id}')" title="Duplicate item" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition w-7 h-7 flex items-center justify-center">
-                <i class="fa-regular fa-copy text-xs"></i>
-              </button>
-              <button onclick="openProductModal('${p.id}')" title="Edit item" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition w-7 h-7 flex items-center justify-center">
-                <i class="fa-solid fa-pen text-xs"></i>
-              </button>
-              <button onclick="promptDeleteProduct('${p.id}')" title="Delete item" class="p-1.5 rounded-lg text-slate-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 transition w-7 h-7 flex items-center justify-center">
-                <i class="fa-regular fa-trash-can text-xs"></i>
-              </button>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5 flex-1">
+                <a href="#overview" onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Overview & Analytics</span>
+                </a>
+                <a href="#inventory" onclick="switchTab('inventory')" id="nav-inventory" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-warehouse w-5 text-center"></i>
+                    <span>Inventory & Stock</span>
+                </a>
+                <a href="#catalogs" onclick="switchTab('catalogs')" id="nav-catalogs" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-tags w-5 text-center"></i>
+                    <span>Catalogs / Categories</span>
+                </a>
+                <a href="#suppliers" onclick="switchTab('suppliers')" id="nav-suppliers" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i>
+                    <span>Suppliers Directory</span>
+                </a>
+                <a href="#transactions" onclick="switchTab('transactions')" id="nav-transactions" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-receipt w-5 text-center"></i>
+                    <span>Audit & Stock Logs</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Session Info -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="bg-slate-800/80 p-3 rounded-xl flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <div id="userAvatar" class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-xs uppercase shrink-0">AD</div>
+                        <div class="overflow-hidden text-left">
+                            <p id="userName" class="text-xs font-semibold text-white truncate">Administrator</p>
+                            <span id="userBadge" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/20 text-blue-300">ADMIN</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full py-2 px-3 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Log Out
+                </button>
             </div>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+        </aside>
 
-    function applyFilters() {
-      renderInventoryTable();
-    }
+        <!-- MAIN VIEWPORT -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            <!-- Top App Bar -->
+            <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <h1 id="pageTitle" class="text-lg font-bold text-slate-800">Overview & Analytics</h1>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium hidden sm:inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> DB Connected
+                    </span>
+                </div>
 
-    function resetFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('filterCategory').value = 'ALL';
-      document.getElementById('filterStatus').value = 'ALL';
-      renderInventoryTable();
-    }
+                <div class="flex items-center gap-3">
+                    <!-- Backup & Restore Buttons (Admin Only) -->
+                    <button onclick="exportDatabaseJSON()" class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center gap-1.5" title="Export JSON database backup">
+                        <i class="fa-solid fa-download"></i>
+                        <span class="hidden sm:inline">Backup DB</span>
+                    </button>
+                    <label class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5" title="Restore JSON database backup">
+                        <i class="fa-solid fa-upload"></i>
+                        <span class="hidden sm:inline">Restore</span>
+                        <input type="file" id="importDBInput" onchange="importDatabaseJSON(event)" accept=".json" class="hidden">
+                    </label>
 
-    function filterByHealth(type) {
-      if (type === 'low') {
-        document.getElementById('filterStatus').value = 'LOW_STOCK';
-      }
-      applyFilters();
-    }
+                    <!-- Add Product Button -->
+                    <button onclick="openProductModal()" class="text-xs px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>New Product</span>
+                    </button>
+                </div>
+            </header>
 
-    function sortBy(col) {
-      if (currentSort.column === col) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentSort.column = col;
-        currentSort.direction = 'asc';
-      }
-      renderInventoryTable();
-    }
+            <div class="p-6 space-y-6 max-w-7xl w-full mx-auto">
 
-    /* =====================================================================
-       7. PRODUCT CRUD & FORM HANDLING
-       ===================================================================== */
-    function openProductModal(editId = null) {
-      const modal = document.getElementById('productModal');
-      const title = document.getElementById('productModalTitle');
-      const form = document.getElementById('productForm');
-      form.reset();
+                <!-- ================= TAB 1: OVERVIEW ================= -->
+                <section id="tab-overview" class="space-y-6">
+                    <!-- Key KPI Stat Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Total Products</p>
+                                <h3 id="statTotalProducts" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">Across all categories</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                        </div>
 
-      if (editId) {
-        const item = products.find(p => p.id === editId);
-        if (item) {
-          title.innerText = "Edit Product";
-          document.getElementById('editProductId').value = item.id;
-          document.getElementById('prodSku').value = item.sku;
-          document.getElementById('prodName').value = item.name;
-          document.getElementById('prodCategory').value = item.category;
-          document.getElementById('prodQuantity').value = item.quantity;
-          document.getElementById('prodThreshold').value = item.threshold;
-          document.getElementById('prodPrice').value = item.price;
-          document.getElementById('prodSupplier').value = item.supplier || '';
-          document.getElementById('prodLocation').value = item.location || '';
-        }
-      } else {
-        title.innerText = "Add New Product";
-        document.getElementById('editProductId').value = "";
-        generateRandomSku();
-      }
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Inventory Valuation</p>
+                                <h3 id="statTotalValuation" class="text-2xl font-bold text-slate-800 mt-1">₱0.00</h3>
+                                <p class="text-[11px] text-emerald-600 font-medium mt-1">Selling Value (₱)</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-peso-sign"></i>
+                            </div>
+                        </div>
 
-      modal.classList.remove('hidden');
-    }
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Low Stock Warnings</p>
+                                <h3 id="statLowStock" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                                <p class="text-[11px] text-amber-600 mt-1">Below threshold level</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
 
-    function closeProductModal() {
-      document.getElementById('productModal').classList.add('hidden');
-    }
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Out of Stock</p>
+                                <h3 id="statOutOfStock" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
+                                <p class="text-[11px] text-rose-500 mt-1">Action required</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </div>
+                    </div>
 
-    function generateRandomSku() {
-      const prefix = ['ELEC', 'FURN', 'SUPP', 'PROD', 'APPL'][Math.floor(Math.random() * 5)];
-      const num = Math.floor(1000 + Math.random() * 9000);
-      document.getElementById('prodSku').value = `${prefix}-${num}`;
-    }
+                    <!-- Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-blue-600"></i>
+                                Inventory Valuation by Category (₱)
+                            </h3>
+                            <div class="h-64">
+                                <canvas id="chartCategoryValuation"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                                Stock Health Breakdown
+                            </h3>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="chartStockHealth"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-    function handleProductSubmit(e) {
-      e.preventDefault();
-      const editId = document.getElementById('editProductId').value;
-      const sku = document.getElementById('prodSku').value.trim().toUpperCase();
-      const name = document.getElementById('prodName').value.trim();
-      const category = document.getElementById('prodCategory').value.trim();
-      const quantity = parseInt(document.getElementById('prodQuantity').value, 10) || 0;
-      const threshold = parseInt(document.getElementById('prodThreshold').value, 10) || 0;
-      const price = parseFloat(document.getElementById('prodPrice').value) || 0;
-      const supplier = document.getElementById('prodSupplier').value.trim();
-      const location = document.getElementById('prodLocation').value.trim();
+                <!-- ================= TAB 2: INVENTORY LIST ================= -->
+                <section id="tab-inventory" class="hidden space-y-4">
+                    <!-- Filters & Search -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="inventorySearch" oninput="renderProductsTable()" placeholder="Search SKU, item name, supplier..."
+                                class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <select id="filterCategory" onchange="renderProductsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none">
+                                <option value="">All Categories</option>
+                            </select>
+                            <select id="filterStockStatus" onchange="renderProductsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none">
+                                <option value="">All Stock Status</option>
+                                <option value="instock">In Stock</option>
+                                <option value="low">Low Stock Alert</option>
+                                <option value="out">Out of Stock</option>
+                            </select>
+                            <button onclick="exportProductsCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-file-csv"></i> Export
+                            </button>
+                        </div>
+                    </div>
 
-      const existingSku = products.find(p => p.sku === sku && p.id !== editId);
-      if (existingSku) {
-        showToast("Error: An item with SKU " + sku + " already exists.", "rose");
-        return;
-      }
+                    <!-- Products Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Item Details</th>
+                                        <th class="py-3 px-4">Category</th>
+                                        <th class="py-3 px-4 text-right">Cost (₱)</th>
+                                        <th class="py-3 px-4 text-right">Selling (₱)</th>
+                                        <th class="py-3 px-4 text-center">Stock Level</th>
+                                        <th class="py-3 px-4 text-center">Status</th>
+                                        <th class="py-3 px-4">Supplier</th>
+                                        <th class="py-3 px-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableBody" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-      if (editId) {
-        const idx = products.findIndex(p => p.id === editId);
-        if (idx !== -1) {
-          const oldQty = products[idx].quantity;
-          products[idx] = {
-            ...products[idx],
-            sku,
-            name,
-            category,
-            quantity,
-            threshold,
-            price,
-            supplier,
-            location
-          };
-          if (oldQty !== quantity) {
-            recordLog(editId, name, sku, quantity > oldQty ? 'IN' : 'OUT', quantity - oldQty, quantity, "Updated through product editor");
-          } else {
-            recordLog(editId, name, sku, 'UPDATE', 0, quantity, "Product details updated");
-          }
-          showToast(`Updated "${name}" successfully`, "indigo");
-        }
-      } else {
-        const newId = "prod-" + Date.now();
-        const newProduct = {
-          id: newId,
-          sku,
-          name,
-          category,
-          quantity,
-          threshold,
-          price,
-          supplier,
-          location,
-          createdAt: new Date().toISOString()
+                <!-- ================= TAB 3: CATALOGS / CATEGORIES ================= -->
+                <section id="tab-catalogs" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Master Catalogs & Categories</h2>
+                            <p class="text-xs text-slate-500">Group items and configure prefix codes for automatic SKU generation</p>
+                        </div>
+                        <button onclick="openCatalogModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-folder-plus"></i> Add Category
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- ================= TAB 4: SUPPLIERS ================= -->
+                <section id="tab-suppliers" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Suppliers Directory</h2>
+                            <p class="text-xs text-slate-500">Maintain contact info, lead times, and primary vendors</p>
+                        </div>
+                        <button onclick="openSupplierModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i> Add Supplier
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliersGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- ================= TAB 5: AUDIT LOGS ================= -->
+                <section id="tab-transactions" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Stock Movement & Audit Log</h2>
+                            <p class="text-xs text-slate-500">Timestamped record of all inventory transactions and adjustments</p>
+                        </div>
+                        <button onclick="clearAuditLog()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">
+                            <i class="fa-solid fa-eraser"></i> Clear Old Logs
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Timestamp</th>
+                                        <th class="py-3 px-4">Action</th>
+                                        <th class="py-3 px-4">SKU / Item</th>
+                                        <th class="py-3 px-4 text-center">Qty Change</th>
+                                        <th class="py-3 px-4">Performed By</th>
+                                        <th class="py-3 px-4">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditTableBody" class="divide-y divide-slate-100">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Product Modal (Create / Edit) -->
+    <div id="productModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 id="productModalTitle" class="font-bold text-slate-800 text-sm">Create New Product</h3>
+                <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="prodId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">SKU</label>
+                        <input type="text" id="prodSku" required placeholder="SKU-1001"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Product Name</label>
+                        <input type="text" id="prodName" required placeholder="Industrial Valve"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+                        <select id="prodCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Supplier</label>
+                        <select id="prodSupplier" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Unit Cost Price (₱)</label>
+                        <input type="number" step="0.01" id="prodCost" required placeholder="0.00"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Unit Selling Price (₱)</label>
+                        <input type="number" step="0.01" id="prodPrice" required placeholder="0.00"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Stock Level</label>
+                        <input type="number" id="prodStock" required placeholder="10"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Reorder Threshold Alert</label>
+                        <input type="number" id="prodThreshold" required placeholder="5"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Adjust Modal -->
+    <div id="stockAdjustModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Record Stock Movement</h3>
+                <button onclick="closeStockAdjustModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="stockAdjustForm" onsubmit="saveStockAdjustment(event)" class="p-5 space-y-4">
+                <input type="hidden" id="adjustProdId">
+                <div>
+                    <p id="adjustProdLabel" class="text-xs font-semibold text-slate-800"></p>
+                    <p id="adjustCurrentStock" class="text-[11px] text-slate-500 mt-0.5"></p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Movement Type</label>
+                    <select id="adjustType" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="in">Stock In (+) / Inbound Receipt</option>
+                        <option value="out">Stock Out (-) / Dispatched Order</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Quantity</label>
+                    <input type="number" id="adjustQty" required min="1" value="1"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Reason / Reference Note</label>
+                    <input type="text" id="adjustNote" placeholder="PO #9921 or customer shipment"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Confirm Movement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="catalogModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add Category</h3>
+                <button onclick="closeCatalogModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveCatalog(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Category Name</label>
+                    <input type="text" id="catName" required placeholder="Electrical Supplies"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Category Code / Prefix</label>
+                    <input type="text" id="catCode" required placeholder="ELEC" maxlength="5"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+                    <textarea id="catDesc" rows="2" placeholder="Wiring, switches, circuit breakers..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeCatalogModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div id="supplierModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add New Supplier</h3>
+                <button onclick="closeSupplierModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveSupplier(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Company / Vendor Name</label>
+                    <input type="text" id="supCompany" required placeholder="Acme Logistics Corp."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Contact Person</label>
+                        <input type="text" id="supContact" required placeholder="Maria Santos"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Lead Time (Days)</label>
+                        <input type="number" id="supLeadTime" required placeholder="5"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+                        <input type="email" id="supEmail" required placeholder="vendor@acme.com"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+                        <input type="text" id="supPhone" required placeholder="+63 917 123 4567"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeSupplierModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Supplier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= APPLICATION LOGIC ================= -->
+    <script>
+        // Default System Users
+        const DEFAULT_USERS = [
+            { id: 'usr_1', email: 'admin@masterinv.com', password: 'admin123', name: 'System Admin', role: 'admin', initials: 'SA' },
+            { id: 'usr_2', email: 'staff@masterinv.com', password: 'staff123', name: 'Inventory Clerk', role: 'staff', initials: 'IC' }
+        ];
+
+        // Seed Catalogs
+        const DEFAULT_CATALOGS = [
+            { id: 'cat_1', code: 'TECH', name: 'Electronics & IT', desc: 'Laptops, routers, and peripheral equipment' },
+            { id: 'cat_2', code: 'MECH', name: 'Mechanical & Tools', desc: 'Hand tools, drills, and hardware fasteners' },
+            { id: 'cat_3', code: 'SAFE', name: 'Safety Equipment', desc: 'Helmets, safety goggles, high-vis vests' }
+        ];
+
+        // Seed Suppliers
+        const DEFAULT_SUPPLIERS = [
+            { id: 'sup_1', company: 'Prime Industrial Supplies Inc.', contact: 'Juan Reyes', email: 'juan@primesupplies.ph', phone: '+63 (02) 8888-1234', leadTime: 3 },
+            { id: 'sup_2', company: 'Pacific Tech Distributors', contact: 'Angela Chen', email: 'sales@pacifictech.com', phone: '+63 917 555 7890', leadTime: 5 },
+            { id: 'sup_3', company: 'Global SafeGuard Trading', contact: 'Robert Gomez', email: 'rgomez@safeguard.ph', phone: '+63 920 111 2233', leadTime: 2 }
+        ];
+
+        // Seed Products
+        const DEFAULT_PRODUCTS = [
+            { id: 'prod_1', sku: 'TECH-101', name: 'Enterprise Wi-Fi 6 Router', category: 'Electronics & IT', supplier: 'Pacific Tech Distributors', costPrice: 4200.00, sellingPrice: 6500.00, stock: 18, threshold: 5 },
+            { id: 'prod_2', sku: 'MECH-202', name: 'Heavy-Duty Impact Drill 750W', category: 'Mechanical & Tools', supplier: 'Prime Industrial Supplies Inc.', costPrice: 2800.00, sellingPrice: 4500.00, stock: 4, threshold: 6 },
+            { id: 'prod_3', sku: 'SAFE-303', name: 'ANSI Certified Hard Hat (White)', category: 'Safety Equipment', supplier: 'Global SafeGuard Trading', costPrice: 350.00, sellingPrice: 650.00, stock: 0, threshold: 10 },
+            { id: 'prod_4', sku: 'TECH-104', name: 'Cat6 Shielded Cable (305m)', category: 'Electronics & IT', supplier: 'Pacific Tech Distributors', costPrice: 3100.00, sellingPrice: 4800.00, stock: 12, threshold: 3 }
+        ];
+
+        // Master DB State
+        let db = {
+            users: JSON.parse(localStorage.getItem('mims_users')) || DEFAULT_USERS,
+            catalogs: JSON.parse(localStorage.getItem('mims_catalogs')) || DEFAULT_CATALOGS,
+            suppliers: JSON.parse(localStorage.getItem('mims_suppliers')) || DEFAULT_SUPPLIERS,
+            products: JSON.parse(localStorage.getItem('mims_products')) || DEFAULT_PRODUCTS,
+            logs: JSON.parse(localStorage.getItem('mims_logs')) || [
+                { id: 'log_1', time: new Date().toLocaleString(), action: 'System Init', sku: 'SYSTEM', delta: 0, user: 'System', notes: 'Master database initialized.' }
+            ]
         };
-        products.unshift(newProduct);
-        recordLog(newId, name, sku, 'CREATE', quantity, quantity, "Initial product record created");
-        showToast(`Created new product "${name}"`, "emerald");
-      }
 
-      saveProducts();
-      populateCategoryFilterDropdown();
-      updateDashboardMetrics();
-      renderInventoryTable();
-      closeProductModal();
-    }
+        let currentUser = null;
+        let chartCategory = null;
+        let chartHealth = null;
 
-    function duplicateProduct(id) {
-      const src = products.find(p => p.id === id);
-      if (!src) return;
-
-      const dupId = "prod-" + Date.now();
-      const dupSku = src.sku + "-COPY";
-      const dupProduct = {
-        ...src,
-        id: dupId,
-        sku: dupSku,
-        name: src.name + " (Copy)",
-        createdAt: new Date().toISOString()
-      };
-
-      products.unshift(dupProduct);
-      saveProducts();
-      recordLog(dupId, dupProduct.name, dupSku, 'CREATE', dupProduct.quantity, dupProduct.quantity, "Duplicated from " + src.sku);
-      updateDashboardMetrics();
-      renderInventoryTable();
-      showToast(`Duplicated into "${dupProduct.name}"`, "indigo");
-    }
-
-    function promptDeleteProduct(id) {
-      const item = products.find(p => p.id === id);
-      if (!item) return;
-
-      showConfirmModal(
-        "Delete Product",
-        `Are you sure you want to completely remove "${item.name}" (SKU: ${item.sku})? This action cannot be undone.`,
-        () => {
-          products = products.filter(p => p.id !== id);
-          saveProducts();
-          recordLog(id, item.name, item.sku, 'DELETE', -item.quantity, 0, "Product deleted from inventory");
-          populateCategoryFilterDropdown();
-          updateDashboardMetrics();
-          renderInventoryTable();
-          showToast(`Deleted "${item.name}"`, "rose");
-        }
-      );
-    }
-
-    /* =====================================================================
-       8. QUICK ADJUST & TRANSACTION MODALS
-       ===================================================================== */
-    function quickStockChange(id, delta) {
-      const item = products.find(p => p.id === id);
-      if (!item) return;
-
-      const newQty = item.quantity + delta;
-      if (newQty < 0) {
-        showToast("Stock quantity cannot be negative", "amber");
-        return;
-      }
-
-      item.quantity = newQty;
-      saveProducts();
-      recordLog(item.id, item.name, item.sku, delta > 0 ? 'IN' : 'OUT', delta, newQty, "Quick single-click adjustment");
-      updateDashboardMetrics();
-      renderInventoryTable();
-    }
-
-    function openStockAdjustModal(preselectedId = null) {
-      const modal = document.getElementById('stockAdjustModal');
-      const select = document.getElementById('adjustProductId');
-      const form = document.getElementById('stockAdjustForm');
-      form.reset();
-
-      select.innerHTML = '';
-      products.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.innerText = `${p.name} (${p.sku}) - Current: ${p.quantity}`;
-        select.appendChild(opt);
-      });
-
-      if (preselectedId) {
-        select.value = preselectedId;
-      }
-      updateAdjustHelperText();
-      modal.classList.remove('hidden');
-    }
-
-    function closeStockAdjustModal() {
-      document.getElementById('stockAdjustModal').classList.add('hidden');
-    }
-
-    function updateAdjustHelperText() {
-      const select = document.getElementById('adjustProductId');
-      const item = products.find(p => p.id === select.value);
-      const helper = document.getElementById('adjustCurrentStockHelp');
-      if (item) {
-        helper.innerText = `Current available: ${item.quantity} units | Unit Price: $${Number(item.price).toFixed(2)}`;
-      } else {
-        helper.innerText = "Current Stock: --";
-      }
-    }
-
-    function handleStockAdjustSubmit(e) {
-      e.preventDefault();
-      const prodId = document.getElementById('adjustProductId').value;
-      const type = document.querySelector('input[name="adjustType"]:checked').value;
-      const amount = parseInt(document.getElementById('adjustQuantity').value, 10);
-      const note = document.getElementById('adjustNotes').value.trim();
-
-      const item = products.find(p => p.id === prodId);
-      if (!item) return;
-
-      if (amount <= 0 || isNaN(amount)) {
-        showToast("Please enter a valid positive number", "amber");
-        return;
-      }
-
-      if (type === 'OUT' && amount > item.quantity) {
-        showToast(`Cannot decrement ${amount}. Only ${item.quantity} units in stock.`, "rose");
-        return;
-      }
-
-      const delta = type === 'IN' ? amount : -amount;
-      item.quantity += delta;
-
-      saveProducts();
-      recordLog(item.id, item.name, item.sku, type, delta, item.quantity, note || (type === 'IN' ? "Warehouse restock" : "Fulfillment outflow"));
-      updateDashboardMetrics();
-      renderInventoryTable();
-      closeStockAdjustModal();
-      showToast(`Stock updated: ${type === 'IN' ? '+' : '-'}${amount} for ${item.name}`, "indigo");
-    }
-
-    /* =====================================================================
-       9. ACTIVITY & LOGS VIEW
-       ===================================================================== */
-    function renderActivityLogs() {
-      const tbody = document.getElementById('activityLogTableBody');
-      const emptyState = document.getElementById('logsEmptyState');
-      tbody.innerHTML = '';
-
-      if (activityLogs.length === 0) {
-        emptyState.classList.remove('hidden');
-        return;
-      }
-      emptyState.classList.add('hidden');
-
-      activityLogs.forEach(log => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-slate-50/70 dark:hover:bg-slate-800/40 text-xs border-b border-slate-100 dark:border-slate-800/60';
-
-        const date = new Date(log.timestamp);
-        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        let badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">STOCK IN</span>';
-        let changeText = `<span class="text-emerald-600 font-semibold">+${log.change}</span>`;
-
-        if (log.type === 'OUT') {
-          badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">STOCK OUT</span>';
-          changeText = `<span class="text-rose-600 font-semibold">${log.change}</span>`;
-        } else if (log.type === 'CREATE') {
-          badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">NEW PROD</span>';
-          changeText = `<span class="text-blue-600 font-semibold">+${log.change}</span>`;
-        } else if (log.type === 'DELETE') {
-          badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300">DELETED</span>';
-          changeText = `<span class="text-slate-500 font-semibold">${log.change}</span>`;
-        } else if (log.type === 'UPDATE') {
-          badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">EDIT</span>';
-          changeText = `<span class="text-slate-400">0</span>`;
+        // Persist DB
+        function saveDatabase() {
+            localStorage.setItem('mims_users', JSON.stringify(db.users));
+            localStorage.setItem('mims_catalogs', JSON.stringify(db.catalogs));
+            localStorage.setItem('mims_suppliers', JSON.stringify(db.suppliers));
+            localStorage.setItem('mims_products', JSON.stringify(db.products));
+            localStorage.setItem('mims_logs', JSON.stringify(db.logs));
         }
 
-        row.innerHTML = `
-          <td class="py-2.5 px-4 text-slate-400 whitespace-nowrap">${dateStr}</td>
-          <td class="py-2.5 px-4">${badge}</td>
-          <td class="py-2.5 px-4">
-            <span class="font-medium text-slate-800 dark:text-slate-200">${escapeHtml(log.productName)}</span>
-            <span class="text-slate-400 font-mono text-[11px] ml-1">(${log.sku})</span>
-          </td>
-          <td class="py-2.5 px-4">${changeText}</td>
-          <td class="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300">${log.newStock} units</td>
-          <td class="py-2.5 px-4 text-slate-500 italic max-w-xs truncate">${escapeHtml(log.reason || 'N/A')}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function renderRecentDashboardLogs() {
-      const container = document.getElementById('dashboardRecentActivity');
-      container.innerHTML = '';
-
-      const recent = activityLogs.slice(0, 4);
-      if (recent.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400">No events recorded yet.</p>';
-        return;
-      }
-
-      recent.forEach(log => {
-        const item = document.createElement('div');
-        item.className = 'flex items-center justify-between text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50';
-
-        const isPositive = log.change > 0 || log.type === 'IN';
-        item.innerHTML = `
-          <div class="flex items-center gap-2.5 truncate">
-            <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60'}">
-              <i class="fa-solid ${isPositive ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i>
-            </div>
-            <div class="truncate">
-              <div class="font-medium text-slate-800 dark:text-slate-200 truncate">${escapeHtml(log.productName)}</div>
-              <div class="text-[11px] text-slate-400">${escapeHtml(log.reason)}</div>
-            </div>
-          </div>
-          <div class="text-right shrink-0 ml-2">
-            <span class="font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">${isPositive ? '+' : ''}${log.change}</span>
-            <span class="text-[10px] text-slate-400 block">${formatTimeAgo(log.timestamp)}</span>
-          </div>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function clearActivityLogs() {
-      showConfirmModal(
-        "Clear Activity Logs",
-        "Are you sure you want to wipe all transaction history entries? Your product data will remain intact.",
-        () => {
-          activityLogs = [];
-          saveLogs();
-          renderActivityLogs();
-          renderRecentDashboardLogs();
-          showToast("Activity history cleared", "indigo");
+        // Format Currency ₱
+        function formatPeso(val) {
+            return '₱' + Number(val || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
-      );
-    }
 
-    /* =====================================================================
-       10. IMPORT & EXPORT (CSV / JSON)
-       ===================================================================== */
-    function exportData(type) {
-      if (type === 'json') {
-        const dump = {
-          exportDate: new Date().toISOString(),
-          version: "1.0",
-          system: "Master Inventory Management System",
-          products: products,
-          logs: activityLogs
-        };
-        const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
-        downloadFile(blob, `master-inventory-backup-${formatDateFile(new Date())}.json`);
-        showToast("JSON Backup file downloaded", "indigo");
-      } else if (type === 'csv') {
-        const headers = ["SKU", "Product Name", "Category", "Quantity", "Threshold", "Price", "Supplier", "Location"];
-        const rows = products.map(p => [
-          `"${(p.sku || '').replace(/"/g, '""')}"`,
-          `"${(p.name || '').replace(/"/g, '""')}"`,
-          `"${(p.category || '').replace(/"/g, '""')}"`,
-          p.quantity,
-          p.threshold,
-          p.price,
-          `"${(p.supplier || '').replace(/"/g, '""')}"`,
-          `"${(p.location || '').replace(/"/g, '""')}"`
-        ]);
-
-        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        downloadFile(blob, `master-inventory-${formatDateFile(new Date())}.csv`);
-        showToast("CSV catalog exported", "indigo");
-      }
-    }
-
-    function downloadFile(blob, filename) {
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-
-    function handleFileImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        try {
-          if (file.name.endsWith('.json')) {
-            const parsed = JSON.parse(content);
-            if (Array.isArray(parsed.products)) {
-              products = parsed.products;
-              if (Array.isArray(parsed.logs)) activityLogs = parsed.logs;
-              saveProducts();
-              saveLogs();
-              populateCategoryFilterDropdown();
-              updateDashboardMetrics();
-              renderInventoryTable();
-              renderActivityLogs();
-              showToast(`Imported ${products.length} products from JSON`, "emerald");
+        // ================= AUTHENTICATION LOGIC =================
+        function checkSession() {
+            const savedSession = localStorage.getItem('mims_active_session');
+            if (savedSession) {
+                try {
+                    currentUser = JSON.parse(savedSession);
+                    showDashboard();
+                } catch(e) {
+                    showLoginScreen();
+                }
             } else {
-              showToast("Invalid JSON schema: Missing 'products' array", "rose");
+                showLoginScreen();
             }
-          } else if (file.name.endsWith('.csv')) {
-            const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
-            if (lines.length <= 1) {
-              showToast("Empty CSV or no data rows found", "amber");
-              return;
+        }
+
+        function showLoginScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            
+            // Set User profile UI
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.initials;
+            const badge = document.getElementById('userBadge');
+            badge.textContent = currentUser.role.toUpperCase();
+            if (currentUser.role === 'admin') {
+                badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/20 text-blue-300";
+            } else {
+                badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/20 text-amber-300";
             }
 
-            let addedCount = 0;
-            for (let i = 1; i < lines.length; i++) {
-              const cols = parseCsvLine(lines[i]);
-              if (cols.length >= 2) {
-                const sku = cols[0] || `SKU-${Date.now()}-${i}`;
-                const name = cols[1] || 'Imported Item';
-                const category = cols[2] || 'Uncategorized';
-                const quantity = parseInt(cols[3], 10) || 0;
-                const threshold = parseInt(cols[4], 10) || 5;
-                const price = parseFloat(cols[5]) || 0;
-                const supplier = cols[6] || '';
-                const location = cols[7] || '';
+            renderAll();
+        }
 
-                const existingIndex = products.findIndex(p => p.sku === sku);
-                const itemPayload = {
-                  id: existingIndex !== -1 ? products[existingIndex].id : 'prod-' + Date.now() + '-' + i,
-                  sku,
-                  name,
-                  category,
-                  quantity,
-                  threshold,
-                  price,
-                  supplier,
-                  location,
-                  createdAt: new Date().toISOString()
+        function quickFillCredentials(email, pass) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = pass;
+        }
+
+        function togglePasswordVisibility(id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash text-sm"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-solid fa-eye text-sm"></i>';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            const foundUser = db.users.find(u => u.email.toLowerCase() === email && u.password === pass);
+
+            if (foundUser) {
+                currentUser = {
+                    id: foundUser.id,
+                    name: foundUser.name,
+                    email: foundUser.email,
+                    role: foundUser.role,
+                    initials: foundUser.initials
                 };
 
-                if (existingIndex !== -1) {
-                  products[existingIndex] = itemPayload;
-                } else {
-                  products.push(itemPayload);
+                if (document.getElementById('rememberMe').checked) {
+                    localStorage.setItem('mims_active_session', JSON.stringify(currentUser));
                 }
-                addedCount++;
-              }
+
+                logTransaction('User Log In', 'AUTH', 0, `User ${currentUser.name} signed in successfully.`);
+                showDashboard();
+            } else {
+                const err = document.getElementById('loginError');
+                err.classList.remove('hidden');
+                document.getElementById('loginErrorMsg').textContent = "Incorrect email address or password.";
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                logTransaction('User Log Out', 'AUTH', 0, `User ${currentUser ? currentUser.name : 'Unknown'} signed out.`);
+                localStorage.removeItem('mims_active_session');
+                currentUser = null;
+                location.reload();
+            }
+        }
+
+        // ================= NAVIGATION =================
+        function switchTab(tabId) {
+            ['overview', 'inventory', 'catalogs', 'suppliers', 'transactions'].forEach(t => {
+                const sec = document.getElementById('tab-' + t);
+                const nav = document.getElementById('nav-' + t);
+                if (t === tabId) {
+                    sec.classList.remove('hidden');
+                    if (nav) {
+                        nav.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white";
+                    }
+                } else {
+                    sec.classList.add('hidden');
+                    if (nav) {
+                        nav.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition";
+                    }
+                }
+            });
+
+            const titles = {
+                overview: 'Overview & Analytics',
+                inventory: 'Inventory & Stock Management',
+                catalogs: 'Master Catalogs / Categories',
+                suppliers: 'Suppliers Directory',
+                transactions: 'Audit Logs & Transactions'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabId];
+
+            if (tabId === 'overview') updateCharts();
+        }
+
+        // ================= RENDERING =================
+        function renderAll() {
+            renderKPIs();
+            renderProductsTable();
+            populateDropdowns();
+            renderCatalogs();
+            renderSuppliers();
+            renderAuditLogs();
+            updateCharts();
+        }
+
+        function renderKPIs() {
+            document.getElementById('statTotalProducts').textContent = db.products.length;
+            
+            const totalVal = db.products.reduce((acc, p) => acc + (Number(p.sellingPrice) * Number(p.stock)), 0);
+            document.getElementById('statTotalValuation').textContent = formatPeso(totalVal);
+
+            const lowStockCount = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
+            document.getElementById('statLowStock').textContent = lowStockCount;
+
+            const outCount = db.products.filter(p => Number(p.stock) === 0).length;
+            document.getElementById('statOutOfStock').textContent = outCount;
+        }
+
+        function renderProductsTable() {
+            const query = (document.getElementById('inventorySearch').value || '').toLowerCase();
+            const catFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStockStatus').value;
+
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+
+            const filtered = db.products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query) || (p.supplier || '').toLowerCase().includes(query);
+                const matchCat = catFilter ? p.category === catFilter : true;
+                
+                let matchStatus = true;
+                const stock = Number(p.stock);
+                const thresh = Number(p.threshold);
+                if (statusFilter === 'out') matchStatus = stock === 0;
+                else if (statusFilter === 'low') matchStatus = stock > 0 && stock <= thresh;
+                else if (statusFilter === 'instock') matchStatus = stock > thresh;
+
+                return matchSearch && matchCat && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No matching products found.</td></tr>`;
+                return;
             }
 
-            saveProducts();
-            recordLog('system', 'CSV File Import', 'BULK', 'IN', addedCount, 0, `Imported ${addedCount} items via CSV`);
-            populateCategoryFilterDropdown();
-            updateDashboardMetrics();
-            renderInventoryTable();
-            showToast(`Successfully processed ${addedCount} CSV records`, "emerald");
-          }
-        } catch (err) {
-          console.error("Import parse failed:", err);
-          showToast("Failed to parse file: " + err.message, "rose");
+            filtered.forEach(p => {
+                const stock = Number(p.stock);
+                const thresh = Number(p.threshold);
+                let badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">In Stock</span>';
+                if (stock === 0) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">Out of Stock</span>';
+                } else if (stock <= thresh) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">Low Stock</span>';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="font-bold text-slate-800">${p.name}</div>
+                        <div class="text-[10px] text-slate-400 font-mono tracking-tight">${p.sku}</div>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-600">${p.category}</td>
+                    <td class="py-3 px-4 text-right text-slate-500 font-mono">${formatPeso(p.costPrice)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-slate-800 font-mono">${formatPeso(p.sellingPrice)}</td>
+                    <td class="py-3 px-4 text-center font-bold text-sm ${stock === 0 ? 'text-rose-600' : 'text-slate-800'}">
+                        ${stock}
+                        <span class="text-[10px] text-slate-400 font-normal"> / min ${thresh}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center">${badge}</td>
+                    <td class="py-3 px-4 text-slate-600 truncate max-w-[140px]">${p.supplier || '—'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="openStockAdjustModal('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Adjust Quantity">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            </button>
+                            <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded" title="Edit Product">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            ${currentUser && currentUser.role === 'admin' ? `
+                            <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded" title="Delete Product">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
-        event.target.value = '';
-      };
-      reader.readAsText(file);
-    }
 
-    function parseCsvLine(text) {
-      const re = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\ settings]*))\s*(?:,|$)/g;
-      const res = [];
-      text.replace(re, (m, p1, p2, p3) => {
-        if (p1 !== undefined) res.push(p1.replace(/\\'/g, "'"));
-        else if (p2 !== undefined) res.push(p2.replace(/\\"/g, '"'));
-        else if (p3 !== undefined) res.push(p3);
-        return '';
-      });
-      return res;
-    }
+        function populateDropdowns() {
+            const catSelect = document.getElementById('prodCategory');
+            const filterCat = document.getElementById('filterCategory');
+            const supSelect = document.getElementById('prodSupplier');
 
-    function loadSampleDataset() {
-      showConfirmModal(
-        "Reset to Demo Dataset",
-        "Load preset demonstration electronics, apparel, and furniture items with default logs?",
-        () => {
-          products = JSON.parse(JSON.stringify(INITIAL_SAMPLE_PRODUCTS));
-          activityLogs = JSON.parse(JSON.stringify(INITIAL_SAMPLE_LOGS));
-          saveProducts();
-          saveLogs();
-          populateCategoryFilterDropdown();
-          updateDashboardMetrics();
-          renderInventoryTable();
-          renderActivityLogs();
-          showToast("Sample catalog loaded successfully", "indigo");
+            catSelect.innerHTML = '';
+            filterCat.innerHTML = '<option value="">All Categories</option>';
+            db.catalogs.forEach(c => {
+                catSelect.innerHTML += `<option value="${c.name}">${c.name} (${c.code})</option>`;
+                filterCat.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            });
+
+            supSelect.innerHTML = '';
+            db.suppliers.forEach(s => {
+                supSelect.innerHTML += `<option value="${s.company}">${s.company}</option>`;
+            });
         }
-      );
-    }
 
-    function confirmReset() {
-      showConfirmModal(
-        "Clear All Inventory Data",
-        "Warning: This will delete ALL products and transaction records in Master Inventory.",
-        () => {
-          products = [];
-          activityLogs = [];
-          saveProducts();
-          saveLogs();
-          populateCategoryFilterDropdown();
-          updateDashboardMetrics();
-          renderInventoryTable();
-          renderActivityLogs();
-          showToast("All inventory data has been cleared", "rose");
+        function renderCatalogs() {
+            const grid = document.getElementById('catalogsGrid');
+            grid.innerHTML = '';
+            db.catalogs.forEach(c => {
+                const count = db.products.filter(p => p.category === c.name).length;
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-bold">${c.code}</span>
+                                <span class="text-xs text-slate-400 font-medium">${count} items</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${c.name}</h3>
+                            <p class="text-xs text-slate-500">${c.desc || 'No description provided.'}</p>
+                        </div>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                            <button onclick="deleteCatalog('${c.id}')" class="text-rose-600 hover:text-rose-800 text-xs font-medium">Remove</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
         }
-      );
-    }
 
-    /* =====================================================================
-       11. UI MODAL & TOAST UTILITIES
-       ===================================================================== */
-    let confirmCallback = null;
+        function renderSuppliers() {
+            const grid = document.getElementById('suppliersGrid');
+            grid.innerHTML = '';
+            db.suppliers.forEach(s => {
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${s.company}</h3>
+                            <p class="text-xs text-slate-600 mb-2 font-medium"><i class="fa-regular fa-user mr-1 text-slate-400"></i>${s.contact}</p>
+                            <div class="text-xs text-slate-500 space-y-1">
+                                <p><i class="fa-regular fa-envelope mr-1.5 text-slate-400"></i>${s.email}</p>
+                                <p><i class="fa-solid fa-phone mr-1.5 text-slate-400"></i>${s.phone}</p>
+                                <p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i>Lead Time: ${s.leadTime} days</p>
+                            </div>
+                        </div>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                            <button onclick="deleteSupplier('${s.id}')" class="text-rose-600 hover:text-rose-800 text-xs font-medium">Remove</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+        }
 
-    function showConfirmModal(title, msg, onConfirm) {
-      const modal = document.getElementById('confirmModal');
-      document.getElementById('confirmTitle').innerText = title;
-      document.getElementById('confirmMessage').innerText = msg;
-      confirmCallback = onConfirm;
+        function renderAuditLogs() {
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '';
+            db.logs.slice().reverse().forEach(l => {
+                let deltaDisplay = '—';
+                if (l.delta > 0) deltaDisplay = `<span class="text-emerald-600 font-bold">+${l.delta}</span>`;
+                else if (l.delta < 0) deltaDisplay = `<span class="text-rose-600 font-bold">${l.delta}</span>`;
 
-      const actionBtn = document.getElementById('confirmActionBtn');
-      const cancelBtn = document.getElementById('confirmCancelBtn');
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.time}</td>
+                        <td class="py-2.5 px-4 font-semibold text-slate-700">${l.action}</td>
+                        <td class="py-2.5 px-4 font-mono font-medium">${l.sku}</td>
+                        <td class="py-2.5 px-4 text-center font-mono">${deltaDisplay}</td>
+                        <td class="py-2.5 px-4 text-slate-600">${l.user}</td>
+                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.notes}</td>
+                    </tr>
+                `;
+            });
+        }
 
-      actionBtn.onclick = () => {
-        if (confirmCallback) confirmCallback();
-        modal.classList.add('hidden');
-      };
-      cancelBtn.onclick = () => {
-        modal.classList.add('hidden');
-      };
+        function logTransaction(action, sku, delta, notes) {
+            db.logs.push({
+                id: 'log_' + Date.now(),
+                time: new Date().toLocaleString(),
+                action,
+                sku,
+                delta,
+                user: currentUser ? currentUser.name : 'System',
+                notes
+            });
+            saveDatabase();
+        }
 
-      modal.classList.remove('hidden');
-    }
+        function clearAuditLog() {
+            if (currentUser.role !== 'admin') {
+                alert("Only Administrators can clear audit logs.");
+                return;
+            }
+            if (confirm("Reset transaction and audit logs?")) {
+                db.logs = [];
+                logTransaction('Logs Reset', 'SYSTEM', 0, 'Audit history cleared by Admin');
+                renderAuditLogs();
+            }
+        }
 
-    function showToast(message, type = 'indigo') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      
-      let colors = 'bg-slate-900 text-white border-slate-700';
-      if (type === 'emerald') colors = 'bg-emerald-600 text-white border-emerald-500';
-      if (type === 'rose') colors = 'bg-rose-600 text-white border-rose-500';
-      if (type === 'amber') colors = 'bg-amber-600 text-white border-amber-500';
-      if (type === 'indigo') colors = 'bg-indigo-600 text-white border-indigo-500';
+        // ================= PRODUCT CRUD =================
+        function openProductModal(prod = null) {
+            document.getElementById('productForm').reset();
+            if (prod) {
+                document.getElementById('productModalTitle').textContent = "Edit Product";
+                document.getElementById('prodId').value = prod.id;
+                document.getElementById('prodSku').value = prod.sku;
+                document.getElementById('prodName').value = prod.name;
+                document.getElementById('prodCategory').value = prod.category;
+                document.getElementById('prodSupplier').value = prod.supplier;
+                document.getElementById('prodCost').value = prod.costPrice;
+                document.getElementById('prodPrice').value = prod.sellingPrice;
+                document.getElementById('prodStock').value = prod.stock;
+                document.getElementById('prodThreshold').value = prod.threshold;
+            } else {
+                document.getElementById('productModalTitle').textContent = "Create New Product";
+                document.getElementById('prodId').value = '';
+                document.getElementById('prodSku').value = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        }
 
-      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-medium border transition-all duration-300 transform translate-y-4 opacity-0 ${colors}`;
-      toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
 
-      container.appendChild(toast);
-      
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-4', 'opacity-0');
-      });
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const sku = document.getElementById('prodSku').value.trim();
+            const name = document.getElementById('prodName').value.trim();
+            const category = document.getElementById('prodCategory').value;
+            const supplier = document.getElementById('prodSupplier').value;
+            const costPrice = parseFloat(document.getElementById('prodCost').value);
+            const sellingPrice = parseFloat(document.getElementById('prodPrice').value);
+            const stock = parseInt(document.getElementById('prodStock').value);
+            const threshold = parseInt(document.getElementById('prodThreshold').value);
 
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3500);
-    }
+            if (id) {
+                const index = db.products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    const delta = stock - db.products[index].stock;
+                    db.products[index] = { id, sku, name, category, supplier, costPrice, sellingPrice, stock, threshold };
+                    logTransaction('Product Update', sku, delta, `Updated product details (${name})`);
+                }
+            } else {
+                const newProd = {
+                    id: 'prod_' + Date.now(),
+                    sku, name, category, supplier, costPrice, sellingPrice, stock, threshold
+                };
+                db.products.push(newProd);
+                logTransaction('Product Created', sku, stock, `Created new item ${name}`);
+            }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+            saveDatabase();
+            closeProductModal();
+            renderAll();
+        }
 
-    function formatDateFile(d) {
-      return d.toISOString().slice(0, 10);
-    }
+        function editProduct(id) {
+            const p = db.products.find(item => item.id === id);
+            if (p) openProductModal(p);
+        }
 
-    function formatTimeAgo(isoDate) {
-      const diffMs = Date.now() - new Date(isoDate).getTime();
-      const diffMin = Math.floor(diffMs / 60000);
-      if (diffMin < 1) return 'Just now';
-      if (diffMin < 60) return `${diffMin}m ago`;
-      const diffHr = Math.floor(diffMin / 60);
-      if (diffHr < 24) return `${diffHr}h ago`;
-      const diffDays = Math.floor(diffHr / 24);
-      return `${diffDays}d ago`;
-    }
+        function deleteProduct(id) {
+            if (currentUser.role !== 'admin') {
+                alert("Only Administrators have permission to delete items.");
+                return;
+            }
+            const p = db.products.find(item => item.id === id);
+            if (p && confirm(`Delete product "${p.name}" (${p.sku}) permanently?`)) {
+                db.products = db.products.filter(item => item.id !== id);
+                logTransaction('Product Deleted', p.sku, -p.stock, `Deleted product ${p.name}`);
+                saveDatabase();
+                renderAll();
+            }
+        }
 
-    /* =====================================================================
-       12. APPLICATION BOOTSTRAP
-       ===================================================================== */
-    window.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      loadData();
-      populateCategoryFilterDropdown();
-      updateDashboardMetrics();
-      renderInventoryTable();
-      renderActivityLogs();
-    });
-  </script>
+        // ================= STOCK ADJUSTMENT =================
+        function openStockAdjustModal(id) {
+            const p = db.products.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('adjustProdId').value = p.id;
+            document.getElementById('adjustProdLabel').textContent = `${p.name} (${p.sku})`;
+            document.getElementById('adjustCurrentStock').textContent = `Current On-Hand Stock: ${p.stock} units`;
+            document.getElementById('adjustQty').value = 1;
+            document.getElementById('adjustNote').value = '';
+            document.getElementById('stockAdjustModal').classList.remove('hidden');
+        }
+
+        function closeStockAdjustModal() {
+            document.getElementById('stockAdjustModal').classList.add('hidden');
+        }
+
+        function saveStockAdjustment(e) {
+            e.preventDefault();
+            const id = document.getElementById('adjustProdId').value;
+            const type = document.getElementById('adjustType').value;
+            const qty = parseInt(document.getElementById('adjustQty').value) || 0;
+            const note = document.getElementById('adjustNote').value.trim() || 'Manual Adjustment';
+
+            const prod = db.products.find(p => p.id === id);
+            if (!prod) return;
+
+            let delta = type === 'in' ? qty : -qty;
+            if (type === 'out' && prod.stock < qty) {
+                alert("Error: Outbound quantity exceeds current available stock!");
+                return;
+            }
+
+            prod.stock += delta;
+            logTransaction(type === 'in' ? 'Stock Inbound' : 'Stock Outbound', prod.sku, delta, note);
+            saveDatabase();
+            closeStockAdjustModal();
+            renderAll();
+        }
+
+        // ================= CATEGORIES & SUPPLIERS CRUD =================
+        function openCatalogModal() { document.getElementById('catalogModal').classList.remove('hidden'); }
+        function closeCatalogModal() { document.getElementById('catalogModal').classList.add('hidden'); }
+        function saveCatalog(e) {
+            e.preventDefault();
+            const name = document.getElementById('catName').value.trim();
+            const code = document.getElementById('catCode').value.trim().toUpperCase();
+            const desc = document.getElementById('catDesc').value.trim();
+            db.catalogs.push({ id: 'cat_' + Date.now(), name, code, desc });
+            logTransaction('Category Added', code, 0, `Added category ${name}`);
+            saveDatabase();
+            closeCatalogModal();
+            renderAll();
+        }
+        function deleteCatalog(id) {
+            db.catalogs = db.catalogs.filter(c => c.id !== id);
+            saveDatabase();
+            renderAll();
+        }
+
+        function openSupplierModal() { document.getElementById('supplierModal').classList.remove('hidden'); }
+        function closeSupplierModal() { document.getElementById('supplierModal').classList.add('hidden'); }
+        function saveSupplier(e) {
+            e.preventDefault();
+            const company = document.getElementById('supCompany').value.trim();
+            const contact = document.getElementById('supContact').value.trim();
+            const leadTime = parseInt(document.getElementById('supLeadTime').value);
+            const email = document.getElementById('supEmail').value.trim();
+            const phone = document.getElementById('supPhone').value.trim();
+            db.suppliers.push({ id: 'sup_' + Date.now(), company, contact, leadTime, email, phone });
+            logTransaction('Supplier Added', 'VENDOR', 0, `Registered vendor ${company}`);
+            saveDatabase();
+            closeSupplierModal();
+            renderAll();
+        }
+        function deleteSupplier(id) {
+            db.suppliers = db.suppliers.filter(s => s.id !== id);
+            saveDatabase();
+            renderAll();
+        }
+
+        // ================= CHARTS =================
+        function updateCharts() {
+            // Valuation by Category
+            const catMap = {};
+            db.products.forEach(p => {
+                catMap[p.category] = (catMap[p.category] || 0) + (Number(p.sellingPrice) * Number(p.stock));
+            });
+
+            const catLabels = Object.keys(catMap);
+            const catData = Object.values(catMap);
+
+            if (chartCategory) chartCategory.destroy();
+            const ctxCat = document.getElementById('chartCategoryValuation').getContext('2d');
+            chartCategory = new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        label: 'Valuation (₱)',
+                        data: catData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => 'Valuation: ' + formatPeso(ctx.raw)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: val => '₱' + val.toLocaleString()
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Stock Health Pie
+            const inStock = db.products.filter(p => Number(p.stock) > Number(p.threshold)).length;
+            const lowStock = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
+            const outStock = db.products.filter(p => Number(p.stock) === 0).length;
+
+            if (chartHealth) chartHealth.destroy();
+            const ctxHealth = document.getElementById('chartStockHealth').getContext('2d');
+            chartHealth = new Chart(ctxHealth, {
+                type: 'doughnut',
+                data: {
+                    labels: ['In Stock', 'Low Stock Alert', 'Out of Stock'],
+                    datasets: [{
+                        data: [inStock, lowStock, outStock],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // ================= IMPORT / EXPORT =================
+        function exportDatabaseJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `master_inventory_db_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchor.click();
+        }
+
+        function importDatabaseJSON(e) {
+            if (currentUser.role !== 'admin') {
+                alert("Only Administrators can restore the database.");
+                return;
+            }
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (parsed.products && parsed.catalogs && parsed.suppliers) {
+                        db = parsed;
+                        saveDatabase();
+                        alert("Database restored successfully!");
+                        renderAll();
+                    } else {
+                        alert("Invalid database file format.");
+                    }
+                } catch(err) {
+                    alert("Failed to parse JSON file.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportProductsCSV() {
+            let csv = "SKU,Product Name,Category,Cost (PHP),Selling (PHP),Stock,Threshold,Supplier\n";
+            db.products.forEach(p => {
+                csv += `"${p.sku}","${p.name}","${p.category}",${p.costPrice},${p.sellingPrice},${p.stock},${p.threshold},"${p.supplier}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `inventory_export_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        // Init App On Load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+        });
+    </script>
 </body>
 </html>
