@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Inventory Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- ==================== AUTH / LOGIN SCREEN ==================== -->
+    <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white text-center">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm border border-white/20 shadow-inner">
+                    <i class="fa-solid fa-boxes-stacked text-3xl text-blue-200"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">Master Inventory</h1>
+                <p class="text-blue-100 text-xs mt-1">Database-Connected Enterprise Hub</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
+                <div id="loginError" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="loginErrorMsg">Invalid email or password</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="email" id="loginEmail" required value=""
+                            class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
+                            placeholder="user@masterinv.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="password" id="loginPassword" required value=""
+                            class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
+                            placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+                        <input type="checkbox" id="rememberMe" checked class="rounded text-blue-600 focus:ring-blue-500">
+                        <span>Remember session</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="loginBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Sign In to Portal</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN DASHBOARD LAYOUT ==================== -->
+    <div id="mainApp" class="flex min-h-screen">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 hidden md:flex">
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-white text-sm leading-tight">Master Inventory</h2>
+                    <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">ENTERPRISE HUB</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5 flex-1">
+                <a href="#overview" onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Overview & Analytics</span>
+                </a>
+                <a href="#inventory" onclick="switchTab('inventory')" id="nav-inventory" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-warehouse w-5 text-center"></i>
+                    <span>Inventory & Stock</span>
+                </a>
+                <a href="#catalogs" onclick="switchTab('catalogs')" id="nav-catalogs" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-tags w-5 text-center"></i>
+                    <span>Catalogs / Categories</span>
+                </a>
+                <a href="#suppliers" onclick="switchTab('suppliers')" id="nav-suppliers" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i>
+                    <span>Suppliers Directory</span>
+                </a>
+                <a href="#transactions" onclick="switchTab('transactions')" id="nav-transactions" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-receipt w-5 text-center"></i>
+                    <span>Stock Movement Logs</span>
+                </a>
+                <a href="#users" onclick="switchTab('users')" id="nav-users" class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-users-gear w-5 text-center text-indigo-400"></i>
+                        <span>System Users</span>
+                    </div>
+                    <span id="userCountBadge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">0</span>
+                </a>
+                <a href="#userlogs" onclick="switchTab('userlogs')" id="nav-userlogs" class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-user-shield w-5 text-center text-blue-400"></i>
+                        <span>User Logs</span>
+                    </div>
+                    <span id="userLogBadgeCount" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">0</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Session Info -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="bg-slate-800/80 p-3 rounded-xl flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <div id="userAvatar" class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-xs uppercase shrink-0">AD</div>
+                        <div class="overflow-hidden text-left">
+                            <p id="userName" class="text-xs font-semibold text-white truncate">Administrator</p>
+                            <span id="userBadge" class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/20 text-blue-300">ADMIN</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full py-2 px-3 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEWPORT -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <h1 id="pageTitle" class="text-lg font-bold text-slate-800">Overview & Analytics</h1>
+                    <span id="dbStatusBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> MySQL Connected
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="fetchDatabaseFromMySQL()" class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center gap-1.5" title="Refresh data from MySQL">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span class="hidden sm:inline">Sync DB</span>
+                    </button>
+                    <button onclick="openProductModal()" class="text-xs px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>New Product</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="p-6 space-y-6 max-w-7xl w-full mx-auto">
+
+                <!-- ================= TAB 1: OVERVIEW ================= -->
+                <section id="tab-overview" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Total Products</p>
+                                <h3 id="statTotalProducts" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">Stored in MySQL DB</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Inventory Valuation</p>
+                                <h3 id="statTotalValuation" class="text-2xl font-bold text-slate-800 mt-1">₱0.00</h3>
+                                <p class="text-[11px] text-emerald-600 font-medium mt-1">Selling Value (₱)</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-peso-sign"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Low Stock Warnings</p>
+                                <h3 id="statLowStock" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                                <p class="text-[11px] text-amber-600 mt-1">Below safety limit</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-slate-400">Out of Stock</p>
+                                <h3 id="statOutOfStock" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
+                                <p class="text-[11px] text-rose-500 mt-1">Needs restock</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-blue-600"></i>
+                                Inventory Valuation by Category (₱)
+                            </h3>
+                            <div class="h-64">
+                                <canvas id="chartCategoryValuation"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                                Stock Health Status
+                            </h3>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="chartStockHealth"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 2: INVENTORY LIST ================= -->
+                <section id="tab-inventory" class="hidden space-y-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="inventorySearch" oninput="renderProductsTable()" placeholder="Search SKU, item name, supplier..."
+                                class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <select id="filterCategory" onchange="renderProductsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none">
+                                <option value="">All Categories</option>
+                            </select>
+                            <select id="filterStockStatus" onchange="renderProductsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none">
+                                <option value="">All Stock Status</option>
+                                <option value="instock">In Stock</option>
+                                <option value="low">Low Stock Alert</option>
+                                <option value="out">Out of Stock</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Item Details</th>
+                                        <th class="py-3 px-4">Category</th>
+                                        <th class="py-3 px-4 text-right">Cost (₱)</th>
+                                        <th class="py-3 px-4 text-right">Selling (₱)</th>
+                                        <th class="py-3 px-4 text-center">Stock Level</th>
+                                        <th class="py-3 px-4 text-center">Status</th>
+                                        <th class="py-3 px-4">Supplier</th>
+                                        <th class="py-3 px-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 3: CATALOGS ================= -->
+                <section id="tab-catalogs" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Master Catalogs & Categories</h2>
+                        </div>
+                        <button onclick="openCatalogModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-folder-plus"></i> Add Category
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogsGrid"></div>
+                </section>
+
+                <!-- ================= TAB 4: SUPPLIERS ================= -->
+                <section id="tab-suppliers" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Suppliers Directory</h2>
+                        </div>
+                        <button onclick="openSupplierModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i> Add Supplier
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliersGrid"></div>
+                </section>
+
+                <!-- ================= TAB 5: STOCK TRANSACTION LOGS ================= -->
+                <section id="tab-transactions" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800">Stock Movement & Audit Log</h2>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Timestamp</th>
+                                        <th class="py-3 px-4">Action</th>
+                                        <th class="py-3 px-4">SKU / Item</th>
+                                        <th class="py-3 px-4 text-center">Qty Change</th>
+                                        <th class="py-3 px-4">Performed By</th>
+                                        <th class="py-3 px-4">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 6: USER MANAGEMENT ================= -->
+                <section id="tab-users" class="hidden space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-users-gear text-indigo-600"></i>
+                                System Users Directory
+                            </h2>
+                        </div>
+                        <!-- Role-Protected Button: Only Admin sees this -->
+                        <button id="btnAddNewUser" onclick="openUserModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i> Add New User
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">User Details</th>
+                                        <th class="py-3 px-4">Email</th>
+                                        <th class="py-3 px-4">Role</th>
+                                        <th class="py-3 px-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 7: USER ACTIVITY LOGS ================= -->
+                <section id="tab-userlogs" class="hidden space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                                User Activity & Security Logs
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Date & Time</th>
+                                        <th class="py-3 px-4">User Identity</th>
+                                        <th class="py-3 px-4">Role</th>
+                                        <th class="py-3 px-4">Action Event</th>
+                                        <th class="py-3 px-4 text-center">Status</th>
+                                        <th class="py-3 px-4">Details & Session</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userLogsTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Product Modal -->
+    <div id="productModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 id="productModalTitle" class="font-bold text-slate-800 text-sm">Create New Product</h3>
+                <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="prodId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">SKU</label>
+                        <input type="text" id="prodSku" required placeholder="SKU-1001"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Product Name</label>
+                        <input type="text" id="prodName" required placeholder="Item Title"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+                        <select id="prodCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Supplier</label>
+                        <select id="prodSupplier" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none"></select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Unit Cost Price (₱)</label>
+                        <input type="number" step="0.01" id="prodCost" required placeholder="0.00"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Unit Selling Price (₱)</label>
+                        <input type="number" step="0.01" id="prodPrice" required placeholder="0.00"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Stock Level</label>
+                        <input type="number" id="prodStock" required placeholder="10"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Reorder Threshold Alert</label>
+                        <input type="number" id="prodThreshold" required placeholder="5"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Save to Database</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Adjust Modal -->
+    <div id="stockAdjustModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Record Stock Movement</h3>
+                <button onclick="closeStockAdjustModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="stockAdjustForm" onsubmit="saveStockAdjustment(event)" class="p-5 space-y-4">
+                <input type="hidden" id="adjustProdId">
+                <div>
+                    <p id="adjustProdLabel" class="text-xs font-semibold text-slate-800"></p>
+                    <p id="adjustCurrentStock" class="text-[11px] text-slate-500 mt-0.5"></p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Movement Type</label>
+                    <select id="adjustType" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="in">Stock In (+) / Inbound Receipt</option>
+                        <option value="out">Stock Out (-) / Dispatched Order</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Quantity</label>
+                    <input type="number" id="adjustQty" required min="1" value="1"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Reason / Reference Note</label>
+                    <input type="text" id="adjustNote" placeholder="PO # or delivery reference"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Confirm Movement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="catalogModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add Category</h3>
+                <button onclick="closeCatalogModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveCatalog(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Category Name</label>
+                    <input type="text" id="catName" required placeholder="Supplies"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Category Code / Prefix</label>
+                    <input type="text" id="catCode" required placeholder="" maxlength="10"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+                    <textarea id="catDesc" rows="2" placeholder="Item classification details..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeCatalogModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div id="supplierModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add New Supplier</h3>
+                <button onclick="closeSupplierModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveSupplier(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Company / Vendor Name</label>
+                    <input type="text" id="supCompany" required placeholder=""
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Contact Person</label>
+                        <input type="text" id="supContact" required placeholder=""
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Lead Time (Days)</label>
+                        <input type="number" id="supLeadTime" required placeholder="5"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+                        <input type="email" id="supEmail" required placeholder="vendor@gmail.com"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+                        <input type="text" id="supPhone" required placeholder="+63 917 123 4567"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeSupplierModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal (Admin only) -->
+    <div id="userModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add New System User</h3>
+                <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveUser(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                    <input type="text" id="usrFullName" required placeholder="John Doe"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <input type="email" id="usrEmail" required placeholder="john@company.com"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <input type="text" id="usrPassword" required placeholder="Initial password"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Role</label>
+                    <select id="usrRole" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                        <option value="staff">Staff (Stock Operations)</option>
+                        <option value="admin">Administrator (Full Control)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT CONNECTED TO API.PHP ================= -->
+    <script>
+        const API_URL = 'api.php';
+
+        let db = {
+            products: [],
+            catalogs: [],
+            suppliers: [],
+            logs: [],
+            users: [],
+            userLogs: []
+        };
+
+        let currentUser = null;
+        let chartCategory = null;
+        let chartHealth = null;
+
+        function formatPeso(val) {
+            return '₱' + Number(val || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // ================= MYSQL BACKEND SYNC =================
+        async function fetchDatabaseFromMySQL() {
+            try {
+                const response = await fetch(`${API_URL}?action=get_all`);
+                if (!response.ok) throw new Error("API call failed");
+                const data = await response.json();
+
+                db.products = data.products || [];
+                db.catalogs = data.catalogs || [];
+                db.suppliers = data.suppliers || [];
+                db.logs = data.stock_logs || [];
+                db.users = data.users || [];
+                db.userLogs = data.user_logs || [];
+
+                document.getElementById('dbStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> MySQL Connected';
+                renderAll();
+            } catch (err) {
+                console.error("Database connection failed:", err);
+                document.getElementById('dbStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> DB Disconnected';
+            }
+        }
+
+        async function logUserActivityToDB(action, status, details, email = null, role = null, name = null) {
+            try {
+                await fetch(`${API_URL}?action=log_user_action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name || (currentUser ? currentUser.name : 'Unknown User'),
+                        email: email || (currentUser ? currentUser.email : 'guest@masterinv.com'),
+                        role: role || (currentUser ? currentUser.role : 'visitor'),
+                        action,
+                        status,
+                        details
+                    })
+                });
+            } catch (err) {
+                console.error("Log writing failed:", err);
+            }
+        }
+
+        // ================= AUTHENTICATION =================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            try {
+                const res = await fetch(`${API_URL}?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await res.json();
+
+                if (res.ok && result.status === 'success') {
+                    currentUser = result.user;
+                    if (document.getElementById('rememberMe').checked) {
+                        localStorage.setItem('mims_active_session', JSON.stringify(currentUser));
+                    }
+
+                    await logUserActivityToDB('Login', 'success', 'User logged into console via MySQL authentication');
+                    showDashboard();
+                    await fetchDatabaseFromMySQL();
+                } else {
+                    document.getElementById('loginError').classList.remove('hidden');
+                    document.getElementById('loginErrorMsg').textContent = result.message || "Invalid credentials.";
+                    await logUserActivityToDB('Failed Login', 'failed', `Failed sign-in attempt for [${email}]`, email, 'visitor', 'Unknown');
+                }
+            } catch (err) {
+                alert("Cannot connect to api.php. Ensure Apache & MySQL are running in XAMPP.");
+            }
+        }
+
+        async function handleLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                if (currentUser) {
+                    await logUserActivityToDB('Logout', 'success', `User logged out of active session`);
+                }
+                localStorage.removeItem('mims_active_session');
+                currentUser = null;
+                location.reload();
+            }
+        }
+
+        function checkSession() {
+            const saved = localStorage.getItem('mims_active_session');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    showDashboard();
+                    fetchDatabaseFromMySQL();
+                } catch(e) {
+                    document.getElementById('authScreen').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.initials;
+            const badge = document.getElementById('userBadge');
+            badge.textContent = currentUser.role.toUpperCase();
+
+            // Dynamic RBAC styling & element visibility
+            const btnAddNewUser = document.getElementById('btnAddNewUser');
+            if (currentUser.role === 'admin') {
+                badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/20 text-blue-300";
+                if (btnAddNewUser) btnAddNewUser.classList.remove('hidden');
+            } else {
+                badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/20 text-amber-300";
+                if (btnAddNewUser) btnAddNewUser.classList.add('hidden'); // Staff cannot see add button
+            }
+        }
+
+        function togglePasswordVisibility(id, btn) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash text-sm"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-solid fa-eye text-sm"></i>';
+            }
+        }
+
+        // ================= PRODUCT CRUD (MYSQL) =================
+        function openProductModal(prod = null) {
+            document.getElementById('productForm').reset();
+            populateDropdowns();
+            if (prod) {
+                document.getElementById('productModalTitle').textContent = "Edit Product";
+                document.getElementById('prodId').value = prod.id;
+                document.getElementById('prodSku').value = prod.sku;
+                document.getElementById('prodName').value = prod.name;
+                document.getElementById('prodCategory').value = prod.category;
+                document.getElementById('prodSupplier').value = prod.supplier;
+                document.getElementById('prodCost').value = prod.cost_price;
+                document.getElementById('prodPrice').value = prod.selling_price;
+                document.getElementById('prodStock').value = prod.stock;
+                document.getElementById('prodThreshold').value = prod.threshold;
+            } else {
+                document.getElementById('productModalTitle').textContent = "Create New Product";
+                document.getElementById('prodId').value = '';
+                document.getElementById('prodSku').value = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const payload = {
+                id: id ? parseInt(id) : null,
+                sku: document.getElementById('prodSku').value.trim(),
+                name: document.getElementById('prodName').value.trim(),
+                category: document.getElementById('prodCategory').value,
+                supplier: document.getElementById('prodSupplier').value,
+                cost_price: parseFloat(document.getElementById('prodCost').value),
+                selling_price: parseFloat(document.getElementById('prodPrice').value),
+                stock: parseInt(document.getElementById('prodStock').value),
+                threshold: parseInt(document.getElementById('prodThreshold').value)
+            };
+
+            const res = await fetch(`${API_URL}?action=save_product`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB(id ? 'Product Updated' : 'Product Created', 'success', `Saved [${payload.name} | ${payload.sku}] to MySQL`);
+                closeProductModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Failed to save product to database.");
+            }
+        }
+
+        function editProduct(id) {
+            const p = db.products.find(item => item.id == id);
+            if (p) openProductModal(p);
+        }
+
+        async function deleteProduct(id) {
+            if (currentUser.role !== 'admin') {
+                alert("Only Administrators can delete items.");
+                return;
+            }
+            const p = db.products.find(item => item.id == id);
+            if (!p) return;
+
+            if (confirm(`Delete product "${p.name}" (${p.sku}) from MySQL database?`)) {
+                const res = await fetch(`${API_URL}?action=delete_product`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: p.id })
+                });
+
+                if (res.ok) {
+                    await logUserActivityToDB('Product Deleted', 'warning', `Deleted [${p.name}] from database`);
+                    await fetchDatabaseFromMySQL();
+                }
+            }
+        }
+
+        // ================= STOCK ADJUSTMENT (MYSQL) =================
+        function openStockAdjustModal(id) {
+            const p = db.products.find(item => item.id == id);
+            if (!p) return;
+            document.getElementById('adjustProdId').value = p.id;
+            document.getElementById('adjustProdLabel').textContent = `${p.name} (${p.sku})`;
+            document.getElementById('adjustCurrentStock').textContent = `Current On-Hand Stock: ${p.stock} units`;
+            document.getElementById('adjustQty').value = 1;
+            document.getElementById('adjustNote').value = '';
+            document.getElementById('stockAdjustModal').classList.remove('hidden');
+        }
+
+        function closeStockAdjustModal() {
+            document.getElementById('stockAdjustModal').classList.add('hidden');
+        }
+
+        async function saveStockAdjustment(e) {
+            e.preventDefault();
+            const id = document.getElementById('adjustProdId').value;
+            const type = document.getElementById('adjustType').value;
+            const qty = parseInt(document.getElementById('adjustQty').value) || 0;
+            const notes = document.getElementById('adjustNote').value.trim() || 'Manual adjustment';
+
+            const prod = db.products.find(p => p.id == id);
+            if (!prod) return;
+
+            if (type === 'out' && parseInt(prod.stock) < qty) {
+                alert("Error: Outbound quantity exceeds available stock!");
+                return;
+            }
+
+            const delta = type === 'in' ? qty : -qty;
+
+            const res = await fetch(`${API_URL}?action=adjust_stock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: prod.id,
+                    sku: prod.sku,
+                    delta,
+                    performed_by: currentUser.name,
+                    notes
+                })
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB('Stock Adjusted', 'success', `${type === 'in' ? 'Added' : 'Subtracted'} ${qty} units for SKU ${prod.sku}`);
+                closeStockAdjustModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Stock adjustment failed in MySQL.");
+            }
+        }
+
+        // ================= CATALOGS & SUPPLIERS CRUD =================
+        function openCatalogModal() { document.getElementById('catalogModal').classList.remove('hidden'); }
+        function closeCatalogModal() { document.getElementById('catalogModal').classList.add('hidden'); }
+        async function saveCatalog(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('catName').value.trim(),
+                code: document.getElementById('catCode').value.trim().toUpperCase(),
+                description: document.getElementById('catDesc').value.trim()
+            };
+            const res = await fetch(`${API_URL}?action=save_catalog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                await logUserActivityToDB('Category Added', 'success', `Created catalog [${payload.name}]`);
+                closeCatalogModal();
+                await fetchDatabaseFromMySQL();
+            }
+        }
+        async function deleteCatalog(id) {
+            if (confirm("Delete this catalog from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_catalog`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
+            }
+        }
+
+        function openSupplierModal() { document.getElementById('supplierModal').classList.remove('hidden'); }
+        function closeSupplierModal() { document.getElementById('supplierModal').classList.add('hidden'); }
+        async function saveSupplier(e) {
+            e.preventDefault();
+            const payload = {
+                company: document.getElementById('supCompany').value.trim(),
+                contact: document.getElementById('supContact').value.trim(),
+                lead_time: parseInt(document.getElementById('supLeadTime').value) || 1,
+                email: document.getElementById('supEmail').value.trim(),
+                phone: document.getElementById('supPhone').value.trim()
+            };
+            const res = await fetch(`${API_URL}?action=save_supplier`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                await logUserActivityToDB('Supplier Added', 'success', `Registered vendor [${payload.company}]`);
+                closeSupplierModal();
+                await fetchDatabaseFromMySQL();
+            }
+        }
+        async function deleteSupplier(id) {
+            if (confirm("Delete supplier from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_supplier`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
+            }
+        }
+
+        // ================= USERS CRUD (ADMIN ONLY) =================
+        function openUserModal() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert("Permission Denied: Only Administrator accounts can add new users.");
+                return;
+            }
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+
+        function closeUserModal() { 
+            document.getElementById('userModal').classList.add('hidden'); 
+        }
+
+        async function saveUser(e) {
+            e.preventDefault();
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert("Permission Denied: Only Administrator accounts can create users.");
+                return;
+            }
+
+            const name = document.getElementById('usrFullName').value.trim();
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'US';
+            const payload = {
+                name,
+                email: document.getElementById('usrEmail').value.trim().toLowerCase(),
+                password: document.getElementById('usrPassword').value.trim(),
+                role: document.getElementById('usrRole').value,
+                initials
+            };
+
+            const res = await fetch(`${API_URL}?action=save_user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB('User Added', 'success', `Created user [${name} | ${payload.email}] with role: ${payload.role}`);
+                closeUserModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Failed to save user. Email might already exist in MySQL.");
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert("Permission Denied: Only Administrator accounts can delete users.");
+                return;
+            }
+            if (confirm("Delete user account from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
+            }
+        }
+
+        // ================= NAVIGATION =================
+        function switchTab(tabId) {
+            ['overview', 'inventory', 'catalogs', 'suppliers', 'transactions', 'users', 'userlogs'].forEach(t => {
+                const sec = document.getElementById('tab-' + t);
+                const nav = document.getElementById('nav-' + t);
+                if (t === tabId) {
+                    sec.classList.remove('hidden');
+                    if (nav) nav.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white";
+                } else {
+                    sec.classList.add('hidden');
+                    if (nav) nav.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition";
+                }
+            });
+
+            const titles = {
+                overview: 'Overview & Analytics',
+                inventory: 'Inventory & Stock Management',
+                catalogs: 'Master Catalogs / Categories',
+                suppliers: 'Suppliers Directory',
+                transactions: 'Stock Movement Logs',
+                users: 'System Users Directory',
+                userlogs: 'User Activity & Audit Security Logs'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabId];
+
+            if (tabId === 'overview') updateCharts();
+        }
+
+        // ================= RENDERING =================
+        function renderAll() {
+            renderKPIs();
+            renderProductsTable();
+            populateDropdowns();
+            renderCatalogs();
+            renderSuppliers();
+            renderStockLogs();
+            renderUsersTable();
+            renderUserLogs();
+            updateCharts();
+        }
+
+        function renderKPIs() {
+            document.getElementById('statTotalProducts').textContent = db.products.length;
+            const totalVal = db.products.reduce((acc, p) => acc + (Number(p.selling_price) * Number(p.stock)), 0);
+            document.getElementById('statTotalValuation').textContent = formatPeso(totalVal);
+            const lowStockCount = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
+            document.getElementById('statLowStock').textContent = lowStockCount;
+            const outCount = db.products.filter(p => Number(p.stock) === 0).length;
+            document.getElementById('statOutOfStock').textContent = outCount;
+            document.getElementById('userCountBadge').textContent = db.users.length;
+            document.getElementById('userLogBadgeCount').textContent = db.userLogs.length;
+        }
+
+        function renderProductsTable() {
+            const query = (document.getElementById('inventorySearch').value || '').toLowerCase();
+            const catFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStockStatus').value;
+
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+
+            const filtered = db.products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query) || (p.supplier || '').toLowerCase().includes(query);
+                const matchCat = catFilter ? p.category === catFilter : true;
+                
+                let matchStatus = true;
+                const stock = Number(p.stock);
+                const thresh = Number(p.threshold);
+                if (statusFilter === 'out') matchStatus = stock === 0;
+                else if (statusFilter === 'low') matchStatus = stock > 0 && stock <= thresh;
+                else if (statusFilter === 'instock') matchStatus = stock > thresh;
+
+                return matchSearch && matchCat && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No products found in MySQL database.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const stock = Number(p.stock);
+                const thresh = Number(p.threshold);
+                let badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">In Stock</span>';
+                if (stock === 0) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">Out of Stock</span>';
+                } else if (stock <= thresh) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">Low Stock</span>';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="font-bold text-slate-800">${p.name}</div>
+                        <div class="text-[10px] text-slate-400 font-mono tracking-tight">${p.sku}</div>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-600">${p.category}</td>
+                    <td class="py-3 px-4 text-right text-slate-500 font-mono">${formatPeso(p.cost_price)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-slate-800 font-mono">${formatPeso(p.selling_price)}</td>
+                    <td class="py-3 px-4 text-center font-bold text-sm ${stock === 0 ? 'text-rose-600' : 'text-slate-800'}">
+                        ${stock}
+                        <span class="text-[10px] text-slate-400 font-normal"> / min ${thresh}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center">${badge}</td>
+                    <td class="py-3 px-4 text-slate-600 truncate max-w-[140px]">${p.supplier || '—'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="openStockAdjustModal('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Adjust Stock">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            </button>
+                            <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded" title="Edit Product">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            ${currentUser && currentUser.role === 'admin' ? `
+                            <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded" title="Delete Product">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function populateDropdowns() {
+            const catSelect = document.getElementById('prodCategory');
+            const filterCat = document.getElementById('filterCategory');
+            const supSelect = document.getElementById('prodSupplier');
+
+            catSelect.innerHTML = '';
+            filterCat.innerHTML = '<option value="">All Categories</option>';
+            db.catalogs.forEach(c => {
+                catSelect.innerHTML += `<option value="${c.name}">${c.name} (${c.code})</option>`;
+                filterCat.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            });
+
+            supSelect.innerHTML = '';
+            db.suppliers.forEach(s => {
+                supSelect.innerHTML += `<option value="${s.company}">${s.company}</option>`;
+            });
+        }
+
+        function renderCatalogs() {
+            const grid = document.getElementById('catalogsGrid');
+            grid.innerHTML = '';
+            db.catalogs.forEach(c => {
+                const count = db.products.filter(p => p.category === c.name).length;
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-bold">${c.code}</span>
+                                <span class="text-xs text-slate-400 font-medium">${count} items</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${c.name}</h3>
+                            <p class="text-xs text-slate-500">${c.description || 'No description provided.'}</p>
+                        </div>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                            <button onclick="deleteCatalog('${c.id}')" class="text-rose-600 hover:text-rose-800 text-xs font-medium">Remove</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function renderSuppliers() {
+            const grid = document.getElementById('suppliersGrid');
+            grid.innerHTML = '';
+            db.suppliers.forEach(s => {
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${s.company}</h3>
+                            <p class="text-xs text-slate-600 mb-2 font-medium"><i class="fa-regular fa-user mr-1 text-slate-400"></i>${s.contact}</p>
+                            <div class="text-xs text-slate-500 space-y-1">
+                                <p><i class="fa-regular fa-envelope mr-1.5 text-slate-400"></i>${s.email}</p>
+                                <p><i class="fa-solid fa-phone mr-1.5 text-slate-400"></i>${s.phone}</p>
+                                <p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i>Lead Time: ${s.lead_time} days</p>
+                            </div>
+                        </div>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                            <button onclick="deleteSupplier('${s.id}')" class="text-rose-600 hover:text-rose-800 text-xs font-medium">Remove</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function renderStockLogs() {
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '';
+            db.logs.forEach(l => {
+                let deltaDisplay = '—';
+                const deltaNum = Number(l.delta);
+                if (deltaNum > 0) deltaDisplay = `<span class="text-emerald-600 font-bold">+${deltaNum}</span>`;
+                else if (deltaNum < 0) deltaDisplay = `<span class="text-rose-600 font-bold">${deltaNum}</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.created_at || '—'}</td>
+                        <td class="py-2.5 px-4 font-semibold text-slate-700">${l.action}</td>
+                        <td class="py-2.5 px-4 font-mono font-medium">${l.sku}</td>
+                        <td class="py-2.5 px-4 text-center font-mono">${deltaDisplay}</td>
+                        <td class="py-2.5 px-4 text-slate-600">${l.performed_by}</td>
+                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.notes}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            db.users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-lg bg-indigo-500 text-white flex items-center justify-center font-bold text-xs">${u.initials || 'U'}</div>
+                                <span class="font-bold text-slate-800">${u.name}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-600">${u.email}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${u.role === 'admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'}">${u.role}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            ${currentUser && currentUser.role === 'admin' && u.email !== currentUser.email ? `
+                            <button onclick="deleteUser('${u.id}')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded" title="Delete User">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>` : '<span class="text-slate-400 text-[10px]">Active</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderUserLogs() {
+            const tbody = document.getElementById('userLogsTableBody');
+            tbody.innerHTML = '';
+            db.userLogs.forEach(log => {
+                let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">SUCCESS</span>';
+                if (log.status === 'warning') statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">WARNING</span>';
+                else if (log.status === 'failed') statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">FAILED</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4 text-slate-500 whitespace-nowrap text-[11px] font-mono">
+                            <i class="fa-regular fa-clock mr-1 text-slate-400"></i>${log.created_at || '—'}
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">${log.user_name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${log.user_email}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${log.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'}">${log.role}</span>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${log.action}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-slate-600">
+                            <div>${log.details}</div>
+                            <div class="text-[10px] text-slate-400 font-mono mt-0.5">${log.ip_address}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateCharts() {
+            const catMap = {};
+            db.products.forEach(p => {
+                catMap[p.category] = (catMap[p.category] || 0) + (Number(p.selling_price) * Number(p.stock));
+            });
+
+            if (chartCategory) chartCategory.destroy();
+            const ctxCat = document.getElementById('chartCategoryValuation')?.getContext('2d');
+            if (ctxCat) {
+                chartCategory = new Chart(ctxCat, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(catMap),
+                        datasets: [{
+                            label: 'Valuation (₱)',
+                            data: Object.values(catMap),
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: ctx => 'Valuation: ' + formatPeso(ctx.raw) }
+                            }
+                        },
+                        scales: {
+                            y: { ticks: { callback: val => '₱' + val.toLocaleString() } }
+                        }
+                    }
+                });
+            }
+
+            const inStock = db.products.filter(p => Number(p.stock) > Number(p.threshold)).length;
+            const lowStock = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
+            const outStock = db.products.filter(p => Number(p.stock) === 0).length;
+
+            if (chartHealth) chartHealth.destroy();
+            const ctxHealth = document.getElementById('chartStockHealth')?.getContext('2d');
+            if (ctxHealth) {
+                chartHealth = new Chart(ctxHealth, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Stock', 'Low Stock Alert', 'Out of Stock'],
+                        datasets: [{
+                            data: [inStock, lowStock, outStock],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+        });
+    </script>
+</body>
+</html>
