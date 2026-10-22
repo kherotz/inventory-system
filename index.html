@@ -41,16 +41,14 @@
     <!-- ==================== AUTH / LOGIN SCREEN ==================== -->
     <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
-            <!-- Header Banner -->
             <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white text-center">
                 <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm border border-white/20 shadow-inner">
                     <i class="fa-solid fa-boxes-stacked text-3xl text-blue-200"></i>
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight">Master Inventory</h1>
-                <p class="text-blue-100 text-xs mt-1">Enterprise Asset & Catalog Control</p>
+                <p class="text-blue-100 text-xs mt-1">Database-Connected Enterprise Hub</p>
             </div>
 
-            <!-- Login Form -->
             <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
                 <div id="loginError" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg flex items-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -61,9 +59,9 @@
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
                     <div class="relative">
                         <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="email" id="loginEmail" required value="admin@masterinv.com"
+                        <input type="email" id="loginEmail" required value=""
                             class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
-                            placeholder="admin@masterinv.com">
+                            placeholder="••••••••">
                     </div>
                 </div>
 
@@ -71,7 +69,7 @@
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="password" id="loginPassword" required value="admin123"
+                        <input type="password" id="loginPassword" required value=""
                             class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition"
                             placeholder="••••••••">
                         <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
@@ -85,35 +83,14 @@
                         <input type="checkbox" id="rememberMe" checked class="rounded text-blue-600 focus:ring-blue-500">
                         <span>Remember session</span>
                     </label>
-                    <span class="text-blue-600 hover:underline cursor-pointer">Security Policy</span>
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                <button type="submit" id="loginBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                    Sign In to Portal
+                    <span>Sign In to Portal</span>
                 </button>
 
-                <!-- Demo Quick Logins -->
-                <div class="pt-4 border-t border-slate-100">
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 text-center mb-2.5">Demo Quick Access</p>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <button type="button" onclick="quickFillCredentials('admin@masterinv.com', 'admin123')"
-                            class="p-2 border border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50/50 text-left transition">
-                            <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Admin Role
-                            </div>
-                            <div class="text-[10px] text-slate-500 mt-0.5">admin123</div>
-                        </button>
-                        <button type="button" onclick="quickFillCredentials('staff@masterinv.com', 'staff123')"
-                            class="p-2 border border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50/50 text-left transition">
-                            <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Staff Role
-                            </div>
-                            <div class="text-[10px] text-slate-500 mt-0.5">staff123</div>
-                        </button>
-                    </div>
-                </div>
-            </form>
+                            </form>
         </div>
     </div>
 
@@ -122,14 +99,13 @@
         
         <!-- SIDEBAR -->
         <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 hidden md:flex">
-            <!-- App Brand -->
             <div class="p-5 border-b border-slate-800 flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
                     <i class="fa-solid fa-boxes-stacked"></i>
                 </div>
                 <div>
                     <h2 class="font-bold text-white text-sm leading-tight">Master Inventory</h2>
-                    <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Enterprise Hub</span>
+                    <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">ENTERPRISE HUB</span>
                 </div>
             </div>
 
@@ -153,7 +129,21 @@
                 </a>
                 <a href="#transactions" onclick="switchTab('transactions')" id="nav-transactions" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
                     <i class="fa-solid fa-receipt w-5 text-center"></i>
-                    <span>Audit & Stock Logs</span>
+                    <span>Stock Movement Logs</span>
+                </a>
+                <a href="#users" onclick="switchTab('users')" id="nav-users" class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-users-gear w-5 text-center text-indigo-400"></i>
+                        <span>System Users</span>
+                    </div>
+                    <span id="userCountBadge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">0</span>
+                </a>
+                <a href="#userlogs" onclick="switchTab('userlogs')" id="nav-userlogs" class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-user-shield w-5 text-center text-blue-400"></i>
+                        <span>User Logs</span>
+                    </div>
+                    <span id="userLogBadgeCount" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">0</span>
                 </a>
             </nav>
 
@@ -177,28 +167,20 @@
 
         <!-- MAIN VIEWPORT -->
         <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-            <!-- Top App Bar -->
+            <!-- Header -->
             <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
                 <div class="flex items-center gap-4">
                     <h1 id="pageTitle" class="text-lg font-bold text-slate-800">Overview & Analytics</h1>
-                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium hidden sm:inline-flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> DB Connected
+                    <span id="dbStatusBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> MySQL Connected
                     </span>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <!-- Backup & Restore Buttons (Admin Only) -->
-                    <button onclick="exportDatabaseJSON()" class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center gap-1.5" title="Export JSON database backup">
-                        <i class="fa-solid fa-download"></i>
-                        <span class="hidden sm:inline">Backup DB</span>
+                    <button onclick="fetchDatabaseFromMySQL()" class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition flex items-center gap-1.5" title="Refresh data from MySQL">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span class="hidden sm:inline">Sync DB</span>
                     </button>
-                    <label class="text-xs px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5" title="Restore JSON database backup">
-                        <i class="fa-solid fa-upload"></i>
-                        <span class="hidden sm:inline">Restore</span>
-                        <input type="file" id="importDBInput" onchange="importDatabaseJSON(event)" accept=".json" class="hidden">
-                    </label>
-
-                    <!-- Add Product Button -->
                     <button onclick="openProductModal()" class="text-xs px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
                         <i class="fa-solid fa-plus"></i>
                         <span>New Product</span>
@@ -210,13 +192,12 @@
 
                 <!-- ================= TAB 1: OVERVIEW ================= -->
                 <section id="tab-overview" class="space-y-6">
-                    <!-- Key KPI Stat Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-semibold uppercase text-slate-400">Total Products</p>
                                 <h3 id="statTotalProducts" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-                                <p class="text-[11px] text-slate-500 mt-1">Across all categories</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Stored in MySQL DB</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-boxes-stacked"></i>
@@ -238,7 +219,7 @@
                             <div>
                                 <p class="text-xs font-semibold uppercase text-slate-400">Low Stock Warnings</p>
                                 <h3 id="statLowStock" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
-                                <p class="text-[11px] text-amber-600 mt-1">Below threshold level</p>
+                                <p class="text-[11px] text-amber-600 mt-1">Below safety limit</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -249,7 +230,7 @@
                             <div>
                                 <p class="text-xs font-semibold uppercase text-slate-400">Out of Stock</p>
                                 <h3 id="statOutOfStock" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
-                                <p class="text-[11px] text-rose-500 mt-1">Action required</p>
+                                <p class="text-[11px] text-rose-500 mt-1">Needs restock</p>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-ban"></i>
@@ -271,7 +252,7 @@
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-pie text-indigo-600"></i>
-                                Stock Health Breakdown
+                                Stock Health Status
                             </h3>
                             <div class="h-64 flex items-center justify-center">
                                 <canvas id="chartStockHealth"></canvas>
@@ -282,7 +263,6 @@
 
                 <!-- ================= TAB 2: INVENTORY LIST ================= -->
                 <section id="tab-inventory" class="hidden space-y-4">
-                    <!-- Filters & Search -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
                         <div class="relative w-full md:w-80">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
@@ -299,13 +279,9 @@
                                 <option value="low">Low Stock Alert</option>
                                 <option value="out">Out of Stock</option>
                             </select>
-                            <button onclick="exportProductsCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-solid fa-file-csv"></i> Export
-                            </button>
                         </div>
                     </div>
 
-                    <!-- Products Table -->
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left border-collapse text-xs">
@@ -321,29 +297,25 @@
                                         <th class="py-3 px-4 text-center">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="productsTableBody" class="divide-y divide-slate-100">
-                                    <!-- Dynamic rows -->
-                                </tbody>
+                                <tbody id="productsTableBody" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- ================= TAB 3: CATALOGS / CATEGORIES ================= -->
+                <!-- ================= TAB 3: CATALOGS ================= -->
                 <section id="tab-catalogs" class="hidden space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Master Catalogs & Categories</h2>
-                            <p class="text-xs text-slate-500">Group items and configure prefix codes for automatic SKU generation</p>
+                            <p class="text-xs text-slate-500">Live sync from MySQL `catalogs` table</p>
                         </div>
                         <button onclick="openCatalogModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-folder-plus"></i> Add Category
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogsGrid">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogsGrid"></div>
                 </section>
 
                 <!-- ================= TAB 4: SUPPLIERS ================= -->
@@ -351,28 +323,23 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Suppliers Directory</h2>
-                            <p class="text-xs text-slate-500">Maintain contact info, lead times, and primary vendors</p>
+                            <p class="text-xs text-slate-500">Live sync from MySQL `suppliers` table</p>
                         </div>
                         <button onclick="openSupplierModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-user-plus"></i> Add Supplier
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliersGrid">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliersGrid"></div>
                 </section>
 
-                <!-- ================= TAB 5: AUDIT LOGS ================= -->
+                <!-- ================= TAB 5: STOCK TRANSACTION LOGS ================= -->
                 <section id="tab-transactions" class="hidden space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-base font-bold text-slate-800">Stock Movement & Audit Log</h2>
-                            <p class="text-xs text-slate-500">Timestamped record of all inventory transactions and adjustments</p>
+                            <p class="text-xs text-slate-500">Live sync from MySQL `stock_logs` table</p>
                         </div>
-                        <button onclick="clearAuditLog()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">
-                            <i class="fa-solid fa-eraser"></i> Clear Old Logs
-                        </button>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -388,20 +355,82 @@
                                         <th class="py-3 px-4">Notes</th>
                                     </tr>
                                 </thead>
-                                <tbody id="auditTableBody" class="divide-y divide-slate-100">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                <tbody id="auditTableBody" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
+
+                <!-- ================= TAB 6: USER MANAGEMENT ================= -->
+                <section id="tab-users" class="hidden space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-users-gear text-indigo-600"></i>
+                                System Users Directory
+                            </h2>
+                            <p class="text-xs text-slate-500">Live sync from MySQL `system_users` table</p>
+                        </div>
+                        <button onclick="openUserModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i> Add New User
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">User Details</th>
+                                        <th class="py-3 px-4">Email</th>
+                                        <th class="py-3 px-4">Role</th>
+                                        <th class="py-3 px-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 7: USER ACTIVITY LOGS ================= -->
+                <section id="tab-userlogs" class="hidden space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                                User Activity & Security Logs
+                            </h2>
+                            <p class="text-xs text-slate-500">Live sync from MySQL `user_logs` table</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100/75 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="py-3 px-4">Date & Time</th>
+                                        <th class="py-3 px-4">User Identity</th>
+                                        <th class="py-3 px-4">Role</th>
+                                        <th class="py-3 px-4">Action Event</th>
+                                        <th class="py-3 px-4 text-center">Status</th>
+                                        <th class="py-3 px-4">Details & Session</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userLogsTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>
 
     <!-- ================= MODALS ================= -->
 
-    <!-- Product Modal (Create / Edit) -->
+    <!-- Product Modal -->
     <div id="productModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border border-slate-200">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -418,7 +447,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Product Name</label>
-                        <input type="text" id="prodName" required placeholder="Industrial Valve"
+                        <input type="text" id="prodName" required placeholder="Item Title"
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
                     </div>
                 </div>
@@ -426,15 +455,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                        <select id="prodCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <select id="prodCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none"></select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Supplier</label>
-                        <select id="prodSupplier" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <select id="prodSupplier" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none"></select>
                     </div>
                 </div>
 
@@ -453,7 +478,7 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Stock Level</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Stock Level</label>
                         <input type="number" id="prodStock" required placeholder="10"
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 outline-none">
                     </div>
@@ -466,7 +491,7 @@
 
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
                     <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Save Product</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">Save to Database</button>
                 </div>
             </form>
         </div>
@@ -502,7 +527,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Reason / Reference Note</label>
-                    <input type="text" id="adjustNote" placeholder="PO #9921 or customer shipment"
+                    <input type="text" id="adjustNote" placeholder="PO # or delivery reference"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
                 </div>
 
@@ -529,17 +554,17 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Category Code / Prefix</label>
-                    <input type="text" id="catCode" required placeholder="ELEC" maxlength="5"
+                    <input type="text" id="catCode" required placeholder="ELEC" maxlength="10"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Description</label>
-                    <textarea id="catDesc" rows="2" placeholder="Wiring, switches, circuit breakers..."
+                    <textarea id="catDesc" rows="2" placeholder="Item classification details..."
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeCatalogModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Category</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
                 </div>
             </form>
         </div>
@@ -555,13 +580,13 @@
             <form onsubmit="saveSupplier(event)" class="p-5 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Company / Vendor Name</label>
-                    <input type="text" id="supCompany" required placeholder="Acme Logistics Corp."
+                    <input type="text" id="supCompany" required placeholder=""
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Contact Person</label>
-                        <input type="text" id="supContact" required placeholder="Maria Santos"
+                        <input type="text" id="supContact" required placeholder=""
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
                     <div>
@@ -573,7 +598,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
-                        <input type="email" id="supEmail" required placeholder="vendor@acme.com"
+                        <input type="email" id="supEmail" required placeholder="vendor@gmail.com"
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-600">
                     </div>
                     <div>
@@ -584,94 +609,175 @@
                 </div>
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeSupplierModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Supplier</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ================= APPLICATION LOGIC ================= -->
+    <!-- User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Add New System User</h3>
+                <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveUser(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                    <input type="text" id="usrFullName" required placeholder="John Doe"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <input type="email" id="usrEmail" required placeholder="john@company.com"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <input type="text" id="usrPassword" required placeholder="Initial password"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Role</label>
+                    <select id="usrRole" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-600">
+                        <option value="staff">Staff (Stock Operations)</option>
+                        <option value="admin">Administrator (Full Control)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">Save to DB</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT CONNECTED TO API.PHP ================= -->
     <script>
-        // Default System Users
-        const DEFAULT_USERS = [
-            { id: 'usr_1', email: 'admin@masterinv.com', password: 'admin123', name: 'System Admin', role: 'admin', initials: 'SA' },
-            { id: 'usr_2', email: 'staff@masterinv.com', password: 'staff123', name: 'Inventory Clerk', role: 'staff', initials: 'IC' }
-        ];
+        const API_URL = 'api.php';
 
-        // Seed Catalogs
-        const DEFAULT_CATALOGS = [
-            { id: 'cat_1', code: 'TECH', name: 'Electronics & IT', desc: 'Laptops, routers, and peripheral equipment' },
-            { id: 'cat_2', code: 'MECH', name: 'Mechanical & Tools', desc: 'Hand tools, drills, and hardware fasteners' },
-            { id: 'cat_3', code: 'SAFE', name: 'Safety Equipment', desc: 'Helmets, safety goggles, high-vis vests' }
-        ];
-
-        // Seed Suppliers
-        const DEFAULT_SUPPLIERS = [
-            { id: 'sup_1', company: 'Prime Industrial Supplies Inc.', contact: 'Juan Reyes', email: 'juan@primesupplies.ph', phone: '+63 (02) 8888-1234', leadTime: 3 },
-            { id: 'sup_2', company: 'Pacific Tech Distributors', contact: 'Angela Chen', email: 'sales@pacifictech.com', phone: '+63 917 555 7890', leadTime: 5 },
-            { id: 'sup_3', company: 'Global SafeGuard Trading', contact: 'Robert Gomez', email: 'rgomez@safeguard.ph', phone: '+63 920 111 2233', leadTime: 2 }
-        ];
-
-        // Seed Products
-        const DEFAULT_PRODUCTS = [
-            { id: 'prod_1', sku: 'TECH-101', name: 'Enterprise Wi-Fi 6 Router', category: 'Electronics & IT', supplier: 'Pacific Tech Distributors', costPrice: 4200.00, sellingPrice: 6500.00, stock: 18, threshold: 5 },
-            { id: 'prod_2', sku: 'MECH-202', name: 'Heavy-Duty Impact Drill 750W', category: 'Mechanical & Tools', supplier: 'Prime Industrial Supplies Inc.', costPrice: 2800.00, sellingPrice: 4500.00, stock: 4, threshold: 6 },
-            { id: 'prod_3', sku: 'SAFE-303', name: 'ANSI Certified Hard Hat (White)', category: 'Safety Equipment', supplier: 'Global SafeGuard Trading', costPrice: 350.00, sellingPrice: 650.00, stock: 0, threshold: 10 },
-            { id: 'prod_4', sku: 'TECH-104', name: 'Cat6 Shielded Cable (305m)', category: 'Electronics & IT', supplier: 'Pacific Tech Distributors', costPrice: 3100.00, sellingPrice: 4800.00, stock: 12, threshold: 3 }
-        ];
-
-        // Master DB State
+        // Master State stored in RAM from MySQL
         let db = {
-            users: JSON.parse(localStorage.getItem('mims_users')) || DEFAULT_USERS,
-            catalogs: JSON.parse(localStorage.getItem('mims_catalogs')) || DEFAULT_CATALOGS,
-            suppliers: JSON.parse(localStorage.getItem('mims_suppliers')) || DEFAULT_SUPPLIERS,
-            products: JSON.parse(localStorage.getItem('mims_products')) || DEFAULT_PRODUCTS,
-            logs: JSON.parse(localStorage.getItem('mims_logs')) || [
-                { id: 'log_1', time: new Date().toLocaleString(), action: 'System Init', sku: 'SYSTEM', delta: 0, user: 'System', notes: 'Master database initialized.' }
-            ]
+            products: [],
+            catalogs: [],
+            suppliers: [],
+            logs: [],
+            users: [],
+            userLogs: []
         };
 
         let currentUser = null;
         let chartCategory = null;
         let chartHealth = null;
 
-        // Persist DB
-        function saveDatabase() {
-            localStorage.setItem('mims_users', JSON.stringify(db.users));
-            localStorage.setItem('mims_catalogs', JSON.stringify(db.catalogs));
-            localStorage.setItem('mims_suppliers', JSON.stringify(db.suppliers));
-            localStorage.setItem('mims_products', JSON.stringify(db.products));
-            localStorage.setItem('mims_logs', JSON.stringify(db.logs));
-        }
-
-        // Format Currency ₱
         function formatPeso(val) {
             return '₱' + Number(val || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // ================= AUTHENTICATION LOGIC =================
-        function checkSession() {
-            const savedSession = localStorage.getItem('mims_active_session');
-            if (savedSession) {
-                try {
-                    currentUser = JSON.parse(savedSession);
-                    showDashboard();
-                } catch(e) {
-                    showLoginScreen();
-                }
-            } else {
-                showLoginScreen();
+        // ================= MYSQL BACKEND SYNC =================
+        async function fetchDatabaseFromMySQL() {
+            try {
+                const response = await fetch(`${API_URL}?action=get_all`);
+                if (!response.ok) throw new Error("API call failed");
+                const data = await response.json();
+
+                db.products = data.products || [];
+                db.catalogs = data.catalogs || [];
+                db.suppliers = data.suppliers || [];
+                db.logs = data.stock_logs || [];
+                db.users = data.users || [];
+                db.userLogs = data.user_logs || [];
+
+                document.getElementById('dbStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> MySQL Connected';
+                renderAll();
+            } catch (err) {
+                console.error("Database connection failed:", err);
+                document.getElementById('dbStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> DB Disconnected';
             }
         }
 
-        function showLoginScreen() {
-            document.getElementById('authScreen').classList.remove('hidden');
+        async function logUserActivityToDB(action, status, details, email = null, role = null, name = null) {
+            try {
+                await fetch(`${API_URL}?action=log_user_action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name || (currentUser ? currentUser.name : 'Unknown User'),
+                        email: email || (currentUser ? currentUser.email : 'guest@masterinv.com'),
+                        role: role || (currentUser ? currentUser.role : 'visitor'),
+                        action,
+                        status,
+                        details
+                    })
+                });
+            } catch (err) {
+                console.error("Log writing failed:", err);
+            }
+        }
+
+        // ================= AUTHENTICATION =================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            try {
+                const res = await fetch(`${API_URL}?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await res.json();
+
+                if (res.ok && result.status === 'success') {
+                    currentUser = result.user;
+                    if (document.getElementById('rememberMe').checked) {
+                        localStorage.setItem('mims_active_session', JSON.stringify(currentUser));
+                    }
+
+                    await logUserActivityToDB('Login', 'success', 'User logged into console via MySQL authentication');
+                    showDashboard();
+                    await fetchDatabaseFromMySQL();
+                } else {
+                    document.getElementById('loginError').classList.remove('hidden');
+                    document.getElementById('loginErrorMsg').textContent = result.message || "Invalid credentials.";
+                    await logUserActivityToDB('Failed Login', 'failed', `Failed sign-in attempt for [${email}]`, email, 'visitor', 'Unknown');
+                }
+            } catch (err) {
+                alert("Cannot connect to api.php. Ensure Apache & MySQL are running in XAMPP.");
+            }
+        }
+
+        async function handleLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                if (currentUser) {
+                    await logUserActivityToDB('Logout', 'success', `User logged out of active session`);
+                }
+                localStorage.removeItem('mims_active_session');
+                currentUser = null;
+                location.reload();
+            }
+        }
+
+        function checkSession() {
+            const saved = localStorage.getItem('mims_active_session');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    showDashboard();
+                    fetchDatabaseFromMySQL();
+                } catch(e) {
+                    document.getElementById('authScreen').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+            }
         }
 
         function showDashboard() {
             document.getElementById('authScreen').classList.add('hidden');
-            
-            // Set User profile UI
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userAvatar').textContent = currentUser.initials;
             const badge = document.getElementById('userBadge');
@@ -681,15 +787,9 @@
             } else {
                 badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/20 text-amber-300";
             }
-
-            renderAll();
         }
 
-        function quickFillCredentials(email, pass) {
-            document.getElementById('loginEmail').value = email;
-            document.getElementById('loginPassword').value = pass;
-        }
-
+        
         function togglePasswordVisibility(id, btn) {
             const input = document.getElementById(id);
             if (input.type === 'password') {
@@ -701,59 +801,260 @@
             }
         }
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('loginPassword').value.trim();
-
-            const foundUser = db.users.find(u => u.email.toLowerCase() === email && u.password === pass);
-
-            if (foundUser) {
-                currentUser = {
-                    id: foundUser.id,
-                    name: foundUser.name,
-                    email: foundUser.email,
-                    role: foundUser.role,
-                    initials: foundUser.initials
-                };
-
-                if (document.getElementById('rememberMe').checked) {
-                    localStorage.setItem('mims_active_session', JSON.stringify(currentUser));
-                }
-
-                logTransaction('User Log In', 'AUTH', 0, `User ${currentUser.name} signed in successfully.`);
-                showDashboard();
+        // ================= PRODUCT CRUD (MYSQL) =================
+        function openProductModal(prod = null) {
+            document.getElementById('productForm').reset();
+            populateDropdowns();
+            if (prod) {
+                document.getElementById('productModalTitle').textContent = "Edit Product";
+                document.getElementById('prodId').value = prod.id;
+                document.getElementById('prodSku').value = prod.sku;
+                document.getElementById('prodName').value = prod.name;
+                document.getElementById('prodCategory').value = prod.category;
+                document.getElementById('prodSupplier').value = prod.supplier;
+                document.getElementById('prodCost').value = prod.cost_price;
+                document.getElementById('prodPrice').value = prod.selling_price;
+                document.getElementById('prodStock').value = prod.stock;
+                document.getElementById('prodThreshold').value = prod.threshold;
             } else {
-                const err = document.getElementById('loginError');
-                err.classList.remove('hidden');
-                document.getElementById('loginErrorMsg').textContent = "Incorrect email address or password.";
+                document.getElementById('productModalTitle').textContent = "Create New Product";
+                document.getElementById('prodId').value = '';
+                document.getElementById('prodSku').value = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const payload = {
+                id: id ? parseInt(id) : null,
+                sku: document.getElementById('prodSku').value.trim(),
+                name: document.getElementById('prodName').value.trim(),
+                category: document.getElementById('prodCategory').value,
+                supplier: document.getElementById('prodSupplier').value,
+                cost_price: parseFloat(document.getElementById('prodCost').value),
+                selling_price: parseFloat(document.getElementById('prodPrice').value),
+                stock: parseInt(document.getElementById('prodStock').value),
+                threshold: parseInt(document.getElementById('prodThreshold').value)
+            };
+
+            const res = await fetch(`${API_URL}?action=save_product`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB(id ? 'Product Updated' : 'Product Created', 'success', `Saved [${payload.name} | ${payload.sku}] to MySQL`);
+                closeProductModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Failed to save product to database.");
             }
         }
 
-        function handleLogout() {
-            if (confirm("Are you sure you want to log out?")) {
-                logTransaction('User Log Out', 'AUTH', 0, `User ${currentUser ? currentUser.name : 'Unknown'} signed out.`);
-                localStorage.removeItem('mims_active_session');
-                currentUser = null;
-                location.reload();
+        function editProduct(id) {
+            const p = db.products.find(item => item.id == id);
+            if (p) openProductModal(p);
+        }
+
+        async function deleteProduct(id) {
+            if (currentUser.role !== 'admin') {
+                alert("Only Administrators can delete items.");
+                return;
+            }
+            const p = db.products.find(item => item.id == id);
+            if (!p) return;
+
+            if (confirm(`Delete product "${p.name}" (${p.sku}) from MySQL database?`)) {
+                const res = await fetch(`${API_URL}?action=delete_product`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: p.id })
+                });
+
+                if (res.ok) {
+                    await logUserActivityToDB('Product Deleted', 'warning', `Deleted [${p.name}] from database`);
+                    await fetchDatabaseFromMySQL();
+                }
+            }
+        }
+
+        // ================= STOCK ADJUSTMENT (MYSQL) =================
+        function openStockAdjustModal(id) {
+            const p = db.products.find(item => item.id == id);
+            if (!p) return;
+            document.getElementById('adjustProdId').value = p.id;
+            document.getElementById('adjustProdLabel').textContent = `${p.name} (${p.sku})`;
+            document.getElementById('adjustCurrentStock').textContent = `Current On-Hand Stock: ${p.stock} units`;
+            document.getElementById('adjustQty').value = 1;
+            document.getElementById('adjustNote').value = '';
+            document.getElementById('stockAdjustModal').classList.remove('hidden');
+        }
+
+        function closeStockAdjustModal() {
+            document.getElementById('stockAdjustModal').classList.add('hidden');
+        }
+
+        async function saveStockAdjustment(e) {
+            e.preventDefault();
+            const id = document.getElementById('adjustProdId').value;
+            const type = document.getElementById('adjustType').value;
+            const qty = parseInt(document.getElementById('adjustQty').value) || 0;
+            const notes = document.getElementById('adjustNote').value.trim() || 'Manual adjustment';
+
+            const prod = db.products.find(p => p.id == id);
+            if (!prod) return;
+
+            if (type === 'out' && parseInt(prod.stock) < qty) {
+                alert("Error: Outbound quantity exceeds available stock!");
+                return;
+            }
+
+            const delta = type === 'in' ? qty : -qty;
+
+            const res = await fetch(`${API_URL}?action=adjust_stock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: prod.id,
+                    sku: prod.sku,
+                    delta,
+                    performed_by: currentUser.name,
+                    notes
+                })
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB('Stock Adjusted', 'success', `${type === 'in' ? 'Added' : 'Subtracted'} ${qty} units for SKU ${prod.sku}`);
+                closeStockAdjustModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Stock adjustment failed in MySQL.");
+            }
+        }
+
+        // ================= CATALOGS & SUPPLIERS CRUD =================
+        function openCatalogModal() { document.getElementById('catalogModal').classList.remove('hidden'); }
+        function closeCatalogModal() { document.getElementById('catalogModal').classList.add('hidden'); }
+        async function saveCatalog(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('catName').value.trim(),
+                code: document.getElementById('catCode').value.trim().toUpperCase(),
+                description: document.getElementById('catDesc').value.trim()
+            };
+            const res = await fetch(`${API_URL}?action=save_catalog`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                await logUserActivityToDB('Category Added', 'success', `Created catalog [${payload.name}]`);
+                closeCatalogModal();
+                await fetchDatabaseFromMySQL();
+            }
+        }
+        async function deleteCatalog(id) {
+            if (confirm("Delete this catalog from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_catalog`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
+            }
+        }
+
+        function openSupplierModal() { document.getElementById('supplierModal').classList.remove('hidden'); }
+        function closeSupplierModal() { document.getElementById('supplierModal').classList.add('hidden'); }
+        async function saveSupplier(e) {
+            e.preventDefault();
+            const payload = {
+                company: document.getElementById('supCompany').value.trim(),
+                contact: document.getElementById('supContact').value.trim(),
+                lead_time: parseInt(document.getElementById('supLeadTime').value) || 1,
+                email: document.getElementById('supEmail').value.trim(),
+                phone: document.getElementById('supPhone').value.trim()
+            };
+            const res = await fetch(`${API_URL}?action=save_supplier`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                await logUserActivityToDB('Supplier Added', 'success', `Registered vendor [${payload.company}]`);
+                closeSupplierModal();
+                await fetchDatabaseFromMySQL();
+            }
+        }
+        async function deleteSupplier(id) {
+            if (confirm("Delete supplier from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_supplier`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
+            }
+        }
+
+        // ================= USERS CRUD =================
+        function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
+        function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
+        async function saveUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('usrFullName').value.trim();
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'US';
+            const payload = {
+                name,
+                email: document.getElementById('usrEmail').value.trim().toLowerCase(),
+                password: document.getElementById('usrPassword').value.trim(),
+                role: document.getElementById('usrRole').value,
+                initials
+            };
+
+            const res = await fetch(`${API_URL}?action=save_user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                await logUserActivityToDB('User Added', 'success', `Created user [${name} | ${payload.email}]`);
+                closeUserModal();
+                await fetchDatabaseFromMySQL();
+            } else {
+                alert("Failed to save user. Email might already exist in MySQL.");
+            }
+        }
+        async function deleteUser(id) {
+            if (confirm("Delete user account from MySQL?")) {
+                await fetch(`${API_URL}?action=delete_user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                await fetchDatabaseFromMySQL();
             }
         }
 
         // ================= NAVIGATION =================
         function switchTab(tabId) {
-            ['overview', 'inventory', 'catalogs', 'suppliers', 'transactions'].forEach(t => {
+            ['overview', 'inventory', 'catalogs', 'suppliers', 'transactions', 'users', 'userlogs'].forEach(t => {
                 const sec = document.getElementById('tab-' + t);
                 const nav = document.getElementById('nav-' + t);
                 if (t === tabId) {
                     sec.classList.remove('hidden');
-                    if (nav) {
-                        nav.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white";
-                    }
+                    if (nav) nav.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white";
                 } else {
                     sec.classList.add('hidden');
-                    if (nav) {
-                        nav.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition";
-                    }
+                    if (nav) nav.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition";
                 }
             });
 
@@ -762,7 +1063,9 @@
                 inventory: 'Inventory & Stock Management',
                 catalogs: 'Master Catalogs / Categories',
                 suppliers: 'Suppliers Directory',
-                transactions: 'Audit Logs & Transactions'
+                transactions: 'Stock Movement Logs',
+                users: 'System Users Directory',
+                userlogs: 'User Activity & Audit Security Logs'
             };
             document.getElementById('pageTitle').textContent = titles[tabId];
 
@@ -776,21 +1079,22 @@
             populateDropdowns();
             renderCatalogs();
             renderSuppliers();
-            renderAuditLogs();
+            renderStockLogs();
+            renderUsersTable();
+            renderUserLogs();
             updateCharts();
         }
 
         function renderKPIs() {
             document.getElementById('statTotalProducts').textContent = db.products.length;
-            
-            const totalVal = db.products.reduce((acc, p) => acc + (Number(p.sellingPrice) * Number(p.stock)), 0);
+            const totalVal = db.products.reduce((acc, p) => acc + (Number(p.selling_price) * Number(p.stock)), 0);
             document.getElementById('statTotalValuation').textContent = formatPeso(totalVal);
-
             const lowStockCount = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
             document.getElementById('statLowStock').textContent = lowStockCount;
-
             const outCount = db.products.filter(p => Number(p.stock) === 0).length;
             document.getElementById('statOutOfStock').textContent = outCount;
+            document.getElementById('userCountBadge').textContent = db.users.length;
+            document.getElementById('userLogBadgeCount').textContent = db.userLogs.length;
         }
 
         function renderProductsTable() {
@@ -816,7 +1120,7 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No matching products found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No products found in MySQL database.</td></tr>`;
                 return;
             }
 
@@ -838,8 +1142,8 @@
                         <div class="text-[10px] text-slate-400 font-mono tracking-tight">${p.sku}</div>
                     </td>
                     <td class="py-3 px-4 font-medium text-slate-600">${p.category}</td>
-                    <td class="py-3 px-4 text-right text-slate-500 font-mono">${formatPeso(p.costPrice)}</td>
-                    <td class="py-3 px-4 text-right font-bold text-slate-800 font-mono">${formatPeso(p.sellingPrice)}</td>
+                    <td class="py-3 px-4 text-right text-slate-500 font-mono">${formatPeso(p.cost_price)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-slate-800 font-mono">${formatPeso(p.selling_price)}</td>
                     <td class="py-3 px-4 text-center font-bold text-sm ${stock === 0 ? 'text-rose-600' : 'text-slate-800'}">
                         ${stock}
                         <span class="text-[10px] text-slate-400 font-normal"> / min ${thresh}</span>
@@ -848,7 +1152,7 @@
                     <td class="py-3 px-4 text-slate-600 truncate max-w-[140px]">${p.supplier || '—'}</td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="openStockAdjustModal('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Adjust Quantity">
+                            <button onclick="openStockAdjustModal('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Adjust Stock">
                                 <i class="fa-solid fa-arrow-right-arrow-left"></i>
                             </button>
                             <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded" title="Edit Product">
@@ -896,7 +1200,7 @@
                                 <span class="text-xs text-slate-400 font-medium">${count} items</span>
                             </div>
                             <h3 class="font-bold text-slate-800 text-sm mb-1">${c.name}</h3>
-                            <p class="text-xs text-slate-500">${c.desc || 'No description provided.'}</p>
+                            <p class="text-xs text-slate-500">${c.description || 'No description provided.'}</p>
                         </div>
                         ${currentUser && currentUser.role === 'admin' ? `
                         <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
@@ -919,7 +1223,7 @@
                             <div class="text-xs text-slate-500 space-y-1">
                                 <p><i class="fa-regular fa-envelope mr-1.5 text-slate-400"></i>${s.email}</p>
                                 <p><i class="fa-solid fa-phone mr-1.5 text-slate-400"></i>${s.phone}</p>
-                                <p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i>Lead Time: ${s.leadTime} days</p>
+                                <p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i>Lead Time: ${s.lead_time} days</p>
                             </div>
                         </div>
                         ${currentUser && currentUser.role === 'admin' ? `
@@ -931,329 +1235,148 @@
             });
         }
 
-        function renderAuditLogs() {
+        function renderStockLogs() {
             const tbody = document.getElementById('auditTableBody');
             tbody.innerHTML = '';
-            db.logs.slice().reverse().forEach(l => {
+            db.logs.forEach(l => {
                 let deltaDisplay = '—';
-                if (l.delta > 0) deltaDisplay = `<span class="text-emerald-600 font-bold">+${l.delta}</span>`;
-                else if (l.delta < 0) deltaDisplay = `<span class="text-rose-600 font-bold">${l.delta}</span>`;
+                const deltaNum = Number(l.delta);
+                if (deltaNum > 0) deltaDisplay = `<span class="text-emerald-600 font-bold">+${deltaNum}</span>`;
+                else if (deltaNum < 0) deltaDisplay = `<span class="text-rose-600 font-bold">${deltaNum}</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.time}</td>
+                        <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.created_at || '—'}</td>
                         <td class="py-2.5 px-4 font-semibold text-slate-700">${l.action}</td>
                         <td class="py-2.5 px-4 font-mono font-medium">${l.sku}</td>
                         <td class="py-2.5 px-4 text-center font-mono">${deltaDisplay}</td>
-                        <td class="py-2.5 px-4 text-slate-600">${l.user}</td>
+                        <td class="py-2.5 px-4 text-slate-600">${l.performed_by}</td>
                         <td class="py-2.5 px-4 text-slate-500 text-[11px]">${l.notes}</td>
                     </tr>
                 `;
             });
         }
 
-        function logTransaction(action, sku, delta, notes) {
-            db.logs.push({
-                id: 'log_' + Date.now(),
-                time: new Date().toLocaleString(),
-                action,
-                sku,
-                delta,
-                user: currentUser ? currentUser.name : 'System',
-                notes
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            db.users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-lg bg-indigo-500 text-white flex items-center justify-center font-bold text-xs">${u.initials || 'U'}</div>
+                                <span class="font-bold text-slate-800">${u.name}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-600">${u.email}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${u.role === 'admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'}">${u.role}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            ${currentUser && currentUser.role === 'admin' && u.email !== currentUser.email ? `
+                            <button onclick="deleteUser('${u.id}')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded" title="Delete User">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>` : '<span class="text-slate-400 text-[10px]">Active</span>'}
+                        </td>
+                    </tr>
+                `;
             });
-            saveDatabase();
         }
 
-        function clearAuditLog() {
-            if (currentUser.role !== 'admin') {
-                alert("Only Administrators can clear audit logs.");
-                return;
-            }
-            if (confirm("Reset transaction and audit logs?")) {
-                db.logs = [];
-                logTransaction('Logs Reset', 'SYSTEM', 0, 'Audit history cleared by Admin');
-                renderAuditLogs();
-            }
+        function renderUserLogs() {
+            const tbody = document.getElementById('userLogsTableBody');
+            tbody.innerHTML = '';
+            db.userLogs.forEach(log => {
+                let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">SUCCESS</span>';
+                if (log.status === 'warning') statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">WARNING</span>';
+                else if (log.status === 'failed') statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">FAILED</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4 text-slate-500 whitespace-nowrap text-[11px] font-mono">
+                            <i class="fa-regular fa-clock mr-1 text-slate-400"></i>${log.created_at || '—'}
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">${log.user_name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${log.user_email}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${log.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'}">${log.role}</span>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${log.action}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-slate-600">
+                            <div>${log.details}</div>
+                            <div class="text-[10px] text-slate-400 font-mono mt-0.5">${log.ip_address}</div>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        // ================= PRODUCT CRUD =================
-        function openProductModal(prod = null) {
-            document.getElementById('productForm').reset();
-            if (prod) {
-                document.getElementById('productModalTitle').textContent = "Edit Product";
-                document.getElementById('prodId').value = prod.id;
-                document.getElementById('prodSku').value = prod.sku;
-                document.getElementById('prodName').value = prod.name;
-                document.getElementById('prodCategory').value = prod.category;
-                document.getElementById('prodSupplier').value = prod.supplier;
-                document.getElementById('prodCost').value = prod.costPrice;
-                document.getElementById('prodPrice').value = prod.sellingPrice;
-                document.getElementById('prodStock').value = prod.stock;
-                document.getElementById('prodThreshold').value = prod.threshold;
-            } else {
-                document.getElementById('productModalTitle').textContent = "Create New Product";
-                document.getElementById('prodId').value = '';
-                document.getElementById('prodSku').value = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
-            }
-            document.getElementById('productModal').classList.remove('hidden');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.add('hidden');
-        }
-
-        function saveProduct(e) {
-            e.preventDefault();
-            const id = document.getElementById('prodId').value;
-            const sku = document.getElementById('prodSku').value.trim();
-            const name = document.getElementById('prodName').value.trim();
-            const category = document.getElementById('prodCategory').value;
-            const supplier = document.getElementById('prodSupplier').value;
-            const costPrice = parseFloat(document.getElementById('prodCost').value);
-            const sellingPrice = parseFloat(document.getElementById('prodPrice').value);
-            const stock = parseInt(document.getElementById('prodStock').value);
-            const threshold = parseInt(document.getElementById('prodThreshold').value);
-
-            if (id) {
-                const index = db.products.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    const delta = stock - db.products[index].stock;
-                    db.products[index] = { id, sku, name, category, supplier, costPrice, sellingPrice, stock, threshold };
-                    logTransaction('Product Update', sku, delta, `Updated product details (${name})`);
-                }
-            } else {
-                const newProd = {
-                    id: 'prod_' + Date.now(),
-                    sku, name, category, supplier, costPrice, sellingPrice, stock, threshold
-                };
-                db.products.push(newProd);
-                logTransaction('Product Created', sku, stock, `Created new item ${name}`);
-            }
-
-            saveDatabase();
-            closeProductModal();
-            renderAll();
-        }
-
-        function editProduct(id) {
-            const p = db.products.find(item => item.id === id);
-            if (p) openProductModal(p);
-        }
-
-        function deleteProduct(id) {
-            if (currentUser.role !== 'admin') {
-                alert("Only Administrators have permission to delete items.");
-                return;
-            }
-            const p = db.products.find(item => item.id === id);
-            if (p && confirm(`Delete product "${p.name}" (${p.sku}) permanently?`)) {
-                db.products = db.products.filter(item => item.id !== id);
-                logTransaction('Product Deleted', p.sku, -p.stock, `Deleted product ${p.name}`);
-                saveDatabase();
-                renderAll();
-            }
-        }
-
-        // ================= STOCK ADJUSTMENT =================
-        function openStockAdjustModal(id) {
-            const p = db.products.find(item => item.id === id);
-            if (!p) return;
-            document.getElementById('adjustProdId').value = p.id;
-            document.getElementById('adjustProdLabel').textContent = `${p.name} (${p.sku})`;
-            document.getElementById('adjustCurrentStock').textContent = `Current On-Hand Stock: ${p.stock} units`;
-            document.getElementById('adjustQty').value = 1;
-            document.getElementById('adjustNote').value = '';
-            document.getElementById('stockAdjustModal').classList.remove('hidden');
-        }
-
-        function closeStockAdjustModal() {
-            document.getElementById('stockAdjustModal').classList.add('hidden');
-        }
-
-        function saveStockAdjustment(e) {
-            e.preventDefault();
-            const id = document.getElementById('adjustProdId').value;
-            const type = document.getElementById('adjustType').value;
-            const qty = parseInt(document.getElementById('adjustQty').value) || 0;
-            const note = document.getElementById('adjustNote').value.trim() || 'Manual Adjustment';
-
-            const prod = db.products.find(p => p.id === id);
-            if (!prod) return;
-
-            let delta = type === 'in' ? qty : -qty;
-            if (type === 'out' && prod.stock < qty) {
-                alert("Error: Outbound quantity exceeds current available stock!");
-                return;
-            }
-
-            prod.stock += delta;
-            logTransaction(type === 'in' ? 'Stock Inbound' : 'Stock Outbound', prod.sku, delta, note);
-            saveDatabase();
-            closeStockAdjustModal();
-            renderAll();
-        }
-
-        // ================= CATEGORIES & SUPPLIERS CRUD =================
-        function openCatalogModal() { document.getElementById('catalogModal').classList.remove('hidden'); }
-        function closeCatalogModal() { document.getElementById('catalogModal').classList.add('hidden'); }
-        function saveCatalog(e) {
-            e.preventDefault();
-            const name = document.getElementById('catName').value.trim();
-            const code = document.getElementById('catCode').value.trim().toUpperCase();
-            const desc = document.getElementById('catDesc').value.trim();
-            db.catalogs.push({ id: 'cat_' + Date.now(), name, code, desc });
-            logTransaction('Category Added', code, 0, `Added category ${name}`);
-            saveDatabase();
-            closeCatalogModal();
-            renderAll();
-        }
-        function deleteCatalog(id) {
-            db.catalogs = db.catalogs.filter(c => c.id !== id);
-            saveDatabase();
-            renderAll();
-        }
-
-        function openSupplierModal() { document.getElementById('supplierModal').classList.remove('hidden'); }
-        function closeSupplierModal() { document.getElementById('supplierModal').classList.add('hidden'); }
-        function saveSupplier(e) {
-            e.preventDefault();
-            const company = document.getElementById('supCompany').value.trim();
-            const contact = document.getElementById('supContact').value.trim();
-            const leadTime = parseInt(document.getElementById('supLeadTime').value);
-            const email = document.getElementById('supEmail').value.trim();
-            const phone = document.getElementById('supPhone').value.trim();
-            db.suppliers.push({ id: 'sup_' + Date.now(), company, contact, leadTime, email, phone });
-            logTransaction('Supplier Added', 'VENDOR', 0, `Registered vendor ${company}`);
-            saveDatabase();
-            closeSupplierModal();
-            renderAll();
-        }
-        function deleteSupplier(id) {
-            db.suppliers = db.suppliers.filter(s => s.id !== id);
-            saveDatabase();
-            renderAll();
-        }
-
-        // ================= CHARTS =================
         function updateCharts() {
-            // Valuation by Category
             const catMap = {};
             db.products.forEach(p => {
-                catMap[p.category] = (catMap[p.category] || 0) + (Number(p.sellingPrice) * Number(p.stock));
+                catMap[p.category] = (catMap[p.category] || 0) + (Number(p.selling_price) * Number(p.stock));
             });
-
-            const catLabels = Object.keys(catMap);
-            const catData = Object.values(catMap);
 
             if (chartCategory) chartCategory.destroy();
-            const ctxCat = document.getElementById('chartCategoryValuation').getContext('2d');
-            chartCategory = new Chart(ctxCat, {
-                type: 'bar',
-                data: {
-                    labels: catLabels,
-                    datasets: [{
-                        label: 'Valuation (₱)',
-                        data: catData,
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => 'Valuation: ' + formatPeso(ctx.raw)
-                            }
-                        }
+            const ctxCat = document.getElementById('chartCategoryValuation')?.getContext('2d');
+            if (ctxCat) {
+                chartCategory = new Chart(ctxCat, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(catMap),
+                        datasets: [{
+                            label: 'Valuation (₱)',
+                            data: Object.values(catMap),
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        }]
                     },
-                    scales: {
-                        y: {
-                            ticks: {
-                                callback: val => '₱' + val.toLocaleString()
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: ctx => 'Valuation: ' + formatPeso(ctx.raw) }
                             }
+                        },
+                        scales: {
+                            y: { ticks: { callback: val => '₱' + val.toLocaleString() } }
                         }
                     }
-                }
-            });
+                });
+            }
 
-            // Stock Health Pie
             const inStock = db.products.filter(p => Number(p.stock) > Number(p.threshold)).length;
             const lowStock = db.products.filter(p => Number(p.stock) > 0 && Number(p.stock) <= Number(p.threshold)).length;
             const outStock = db.products.filter(p => Number(p.stock) === 0).length;
 
             if (chartHealth) chartHealth.destroy();
-            const ctxHealth = document.getElementById('chartStockHealth').getContext('2d');
-            chartHealth = new Chart(ctxHealth, {
-                type: 'doughnut',
-                data: {
-                    labels: ['In Stock', 'Low Stock Alert', 'Out of Stock'],
-                    datasets: [{
-                        data: [inStock, lowStock, outStock],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            const ctxHealth = document.getElementById('chartStockHealth')?.getContext('2d');
+            if (ctxHealth) {
+                chartHealth = new Chart(ctxHealth, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Stock', 'Low Stock Alert', 'Out of Stock'],
+                        datasets: [{
+                            data: [inStock, lowStock, outStock],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
-                }
-            });
-        }
-
-        // ================= IMPORT / EXPORT =================
-        function exportDatabaseJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `master_inventory_db_${new Date().toISOString().slice(0,10)}.json`);
-            dlAnchor.click();
-        }
-
-        function importDatabaseJSON(e) {
-            if (currentUser.role !== 'admin') {
-                alert("Only Administrators can restore the database.");
-                return;
+                });
             }
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (parsed.products && parsed.catalogs && parsed.suppliers) {
-                        db = parsed;
-                        saveDatabase();
-                        alert("Database restored successfully!");
-                        renderAll();
-                    } else {
-                        alert("Invalid database file format.");
-                    }
-                } catch(err) {
-                    alert("Failed to parse JSON file.");
-                }
-            };
-            reader.readAsText(file);
         }
 
-        function exportProductsCSV() {
-            let csv = "SKU,Product Name,Category,Cost (PHP),Selling (PHP),Stock,Threshold,Supplier\n";
-            db.products.forEach(p => {
-                csv += `"${p.sku}","${p.name}","${p.category}",${p.costPrice},${p.sellingPrice},${p.stock},${p.threshold},"${p.supplier}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `inventory_export_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
-        }
-
-        // Init App On Load
+        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             checkSession();
         });
